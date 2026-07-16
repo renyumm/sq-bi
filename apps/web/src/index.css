@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/* Prevent flash of white before React hydrates.
+   darkMode is currently hardcoded false in App — always light background.
+   Remove this block (not the media query) when dark mode toggle is wired up. */
+html, body, #root {
+  background: #f8fafc;   /* matches bg-slate-50 */
+  min-height: 100%;
+}
+
+@theme {
+  --color-primary: #1E56A0;
+  --color-primary-hover: #0052CC;
+  --color-bg-gray: #F4F5F7;
+  --color-text-dark: #172B4D;
+  --color-text-secondary: #5E6C84;
+  --color-success: #36B37E;
+  --color-warning: #FFAB00;
+  --color-error: #FF5630;
+  --color-dark-bg: #1A202C;
+  --color-dark-surface: #2D3748;
+}
+
+@layer components {
+  .management-page {
+    @apply flex-1 w-full max-w-4xl mx-auto overflow-y-auto p-6 space-y-6 text-left;
+  }
+
+  .management-header {
+    @apply flex items-start justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800;
+  }
+
+  .management-title {
+    @apply flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white;
+  }
+
+  .management-description {
+    @apply mt-1 text-xs text-slate-500 dark:text-slate-400;
+  }
+
+  .management-primary-action {
+    @apply inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .management-secondary-action {
+    @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800;
+  }
+
+  .management-danger-action {
+    @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-bold text-rose-600 shadow-sm transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-900/60 dark:bg-slate-900 dark:text-rose-300 dark:hover:bg-rose-950/30;
+  }
+
+  .management-ghost-action {
+    @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100;
+  }
+
+  .management-modal-backdrop {
+    @apply fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm dark:bg-slate-950/70;
+  }
+
+  .management-modal-surface {
+    @apply w-full rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-2xl dark:border-slate-800 dark:bg-slate-900;
+  }
+
+  .management-card {
+    @apply rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900;
+  }
+
+  .management-page select.border-dashed {
+    @apply w-auto border-0 bg-transparent p-0 text-indigo-600 dark:text-indigo-300;
+  }
+
+  .pack-asset-form label {
+    @apply block text-[11px] font-bold text-slate-700 dark:text-slate-300;
+  }
+
+  .pack-asset-form input,
+  .pack-asset-form textarea,
+  .pack-asset-form select {
+    @apply w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:focus:border-indigo-500;
+  }
+
+  .pack-asset-form textarea {
+    @apply resize-y leading-5;
+  }
+}
+
+/* Custom Scrollbar for Dense Work Surface */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Skeleton Loading Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}

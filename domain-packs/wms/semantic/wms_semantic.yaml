@@ -1,0 +1,67 @@
+data_sources:
+  - data_source_id: oracle_tms
+    name: TMS Oracle Production
+    database_type: oracle
+    connection_alias: TMS_ORACLE
+    is_read_only: true
+    owner: admin
+    tags: [production, wms]
+
+tables:
+  - { table_id: wms_delivery_info, data_source_id: oracle_tms, physical_name: WMS_DELIVERY_INFO, business_name: WMS交付信息表, description: WMS交付状态及TMS发货关联, owner: admin, tags: [fact, delivery] }
+  - { table_id: hr_deliver_apply_wms, data_source_id: oracle_tms, physical_name: HR_DELIVER_APPLY_WMS, business_name: WMS发货申请表, description: WMS申请单、物料和订单信息, owner: admin, tags: [fact, material] }
+  - { table_id: wms_logistics_info, data_source_id: oracle_tms, physical_name: WMS_LOGISTICS_INFO, business_name: WMS出库物流表, description: 出货、出库、客户和收货地址信息, owner: admin, tags: [fact, outbound] }
+  - { table_id: org_wms, data_source_id: oracle_tms, physical_name: ORG_WMS, business_name: WMS仓库组织表, description: 仓库与组织主数据, owner: admin, tags: [dimension, warehouse] }
+
+fields:
+  - { field_id: wms_delivery_info.id, table_id: wms_delivery_info, physical_name: ID, business_name: 交付记录ID, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_delivery_info.wms_id, table_id: wms_delivery_info, physical_name: WMS_ID, business_name: 仓库ID, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_delivery_info.tms_deliver_no, table_id: wms_delivery_info, physical_name: TMS_DELIVER_NO, business_name: TMS发货单号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_delivery_info.wms_status, table_id: wms_delivery_info, physical_name: WMS_STATUS, business_name: WMS状态, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_delivery_info.delivery_date, table_id: wms_delivery_info, physical_name: DELIVERY_DATE, business_name: 交付日期, data_type: DATE, is_dimension: true, is_measure: false }
+  - { field_id: wms_delivery_info.wl_codes, table_id: wms_delivery_info, physical_name: WL_CODES, business_name: 物料编码集, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_delivery_info.order_num, table_id: wms_delivery_info, physical_name: ORDER_NUM, business_name: 订单号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_delivery_info.contract_no, table_id: wms_delivery_info, physical_name: CONTRACT_NO, business_name: 合同号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.apply_no, table_id: hr_deliver_apply_wms, physical_name: APPLY_NO, business_name: 申请单号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.deliver_no, table_id: hr_deliver_apply_wms, physical_name: DELIVER_NO, business_name: 发货单号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.wms_status, table_id: hr_deliver_apply_wms, physical_name: WMS_STATUS, business_name: 申请WMS状态, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.deliver_date, table_id: hr_deliver_apply_wms, physical_name: DELIVER_DATE, business_name: 申请交付日期, data_type: DATE, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.wms_id, table_id: hr_deliver_apply_wms, physical_name: WMS_ID, business_name: 申请仓库ID, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.deliver_store, table_id: hr_deliver_apply_wms, physical_name: DELIVER_STORE, business_name: 发货库位, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.goods_name, table_id: hr_deliver_apply_wms, physical_name: GOODS_NAME, business_name: 货物名称, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.wl_code, table_id: hr_deliver_apply_wms, physical_name: WL_CODE, business_name: 物料编码, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.order_num, table_id: hr_deliver_apply_wms, physical_name: ORDER_NUM, business_name: 订单号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: hr_deliver_apply_wms.transport_type, table_id: hr_deliver_apply_wms, physical_name: TRANSPORT_TYPE, business_name: 运输方式, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_logistics_info.id, table_id: wms_logistics_info, physical_name: ID, business_name: 物流记录ID, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_logistics_info.ship_num, table_id: wms_logistics_info, physical_name: SHIP_NUM, business_name: 出货单号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_logistics_info.ship_date, table_id: wms_logistics_info, physical_name: SHIP_DATE, business_name: 出货日期, data_type: DATE, is_dimension: true, is_measure: false }
+  - { field_id: wms_logistics_info.out_num, table_id: wms_logistics_info, physical_name: OUT_NUM, business_name: 出库单号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_logistics_info.apply_num, table_id: wms_logistics_info, physical_name: APPLY_NUM, business_name: 申请单号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_logistics_info.contract_num, table_id: wms_logistics_info, physical_name: CONTRACT_NUM, business_name: 合同号, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_logistics_info.cst_name, table_id: wms_logistics_info, physical_name: CST_NAME, business_name: 客户名称, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: wms_logistics_info.rec_address, table_id: wms_logistics_info, physical_name: REC_ADDRESS, business_name: 收货地址, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: org_wms.wms_id, table_id: org_wms, physical_name: WMS_ID, business_name: 仓库ID, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: org_wms.wms_name, table_id: org_wms, physical_name: WMS_NAME, business_name: 仓库名称, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: org_wms.org_id, table_id: org_wms, physical_name: ORG_ID, business_name: 组织ID, data_type: VARCHAR, is_dimension: true, is_measure: false }
+  - { field_id: org_wms.org_name, table_id: org_wms, physical_name: ORG_NAME, business_name: 组织名称, data_type: VARCHAR, is_dimension: true, is_measure: false }
+
+metrics:
+  - { metric_code: wms_delivery_count, name: WMS交付单量, definition: WMS交付信息的去重记录数, visibility: official, logical_formula: { expression: "count_distinct(delivery_id)", referenced_standard_fields: [delivery_id] }, formula: { expression: "select count(distinct ID) as wms_delivery_count from WMS_DELIVERY_INFO", numerator: ID, filters: [], time_field: DELIVERY_DATE }, data_source_id: oracle_tms, owner: admin, version: "1.0.0", synonyms: [交付单量, WMS单量] }
+  - { metric_code: wms_tms_linked_count, name: TMS关联交付量, definition: 已关联TMS发货单的WMS交付量, visibility: official, logical_formula: { expression: "count_distinct(tms_deliver_no)", referenced_standard_fields: [tms_deliver_no] }, formula: { expression: "select count(distinct TMS_DELIVER_NO) as linked_count from WMS_DELIVERY_INFO", numerator: TMS_DELIVER_NO, filters: [], time_field: DELIVERY_DATE }, data_source_id: oracle_tms, owner: admin, version: "1.0.0", synonyms: [TMS关联量] }
+  - { metric_code: wms_status_delivery_count, name: WMS状态分布, definition: 按WMS状态统计交付单量, visibility: official, logical_formula: { expression: "count_distinct(delivery_id) group_by(wms_status)", referenced_standard_fields: [delivery_id, wms_status] }, formula: { expression: "select WMS_STATUS, count(distinct ID) from WMS_DELIVERY_INFO group by WMS_STATUS", numerator: ID, filters: [], time_field: DELIVERY_DATE }, data_source_id: oracle_tms, owner: admin, version: "1.0.0", synonyms: [WMS状态, 交付状态分布] }
+  - { metric_code: wms_material_count, name: 交付物料数, definition: WMS申请中的去重物料数, visibility: official, logical_formula: { expression: "count_distinct(material_code)", referenced_standard_fields: [material_code] }, formula: { expression: "select count(distinct WL_CODE) from HR_DELIVER_APPLY_WMS", numerator: WL_CODE, filters: [] }, data_source_id: oracle_tms, owner: admin, version: "1.0.0", synonyms: [物料数, SKU数] }
+  - { metric_code: wms_warehouse_count, name: 仓库数, definition: 仓库组织主数据中的去重仓库数, visibility: official, logical_formula: { expression: "count_distinct(warehouse_master_id)", referenced_standard_fields: [warehouse_master_id] }, formula: { expression: "select count(distinct WMS_ID) from ORG_WMS", numerator: WMS_ID, filters: [] }, data_source_id: oracle_tms, owner: admin, version: "1.0.0", synonyms: [仓库数量] }
+  - { metric_code: wms_shipment_count, name: 出货单量, definition: WMS物流出货单数, visibility: official, logical_formula: { expression: "count_distinct(shipment_no)", referenced_standard_fields: [shipment_no] }, formula: { expression: "select count(distinct SHIP_NUM) from WMS_LOGISTICS_INFO", numerator: SHIP_NUM, filters: [], time_field: SHIP_DATE }, data_source_id: oracle_tms, owner: admin, version: "1.0.0", synonyms: [出货量] }
+  - { metric_code: wms_outbound_count, name: 出库单量, definition: WMS物流出库单数, visibility: official, logical_formula: { expression: "count_distinct(outbound_no)", referenced_standard_fields: [outbound_no] }, formula: { expression: "select count(distinct OUT_NUM) from WMS_LOGISTICS_INFO", numerator: OUT_NUM, filters: [], time_field: SHIP_DATE }, data_source_id: oracle_tms, owner: admin, version: "1.0.0", synonyms: [出库量] }
+  - { metric_code: wms_customer_count, name: 交付客户数, definition: WMS物流覆盖的去重客户数, visibility: official, logical_formula: { expression: "count_distinct(customer_name)", referenced_standard_fields: [customer_name] }, formula: { expression: "select count(distinct CST_NAME) from WMS_LOGISTICS_INFO", numerator: CST_NAME, filters: [] }, data_source_id: oracle_tms, owner: admin, version: "1.0.0", synonyms: [客户数] }
+
+reports:
+  - { report_skill_id: wms_delivery_daily, namespace: wms, name: WMS交付日报, owner_user_id: admin, visibility: official, description: 跟踪交付单量、TMS关联量和状态分布, time_grain: day, widgets: [{ widget_id: delivery_overview, title: 交付概览, metric_codes: [wms_delivery_count, wms_tms_linked_count, wms_status_delivery_count], dimensions: [delivery_date, wms_status], chart_type: line }] }
+  - { report_skill_id: wms_outbound_daily, namespace: wms, name: WMS出库物流日报, owner_user_id: admin, visibility: official, description: 展示出货、出库和客户覆盖情况, time_grain: day, widgets: [{ widget_id: outbound_overview, title: 出库概览, metric_codes: [wms_shipment_count, wms_outbound_count, wms_customer_count], dimensions: [shipment_no], chart_type: bar }] }
+  - { report_skill_id: wms_warehouse_overview, namespace: wms, name: WMS仓储资源概览, owner_user_id: admin, visibility: official, description: 展示仓库、物料和交付业务覆盖, widgets: [{ widget_id: warehouse_overview, title: 仓储资源, metric_codes: [wms_warehouse_count, wms_material_count, wms_delivery_count], dimensions: [warehouse_name], chart_type: bar }] }
+
+skills:
+  - { skill_id: wms_delivery_overview, namespace: wms, name: WMS交付概览, skill_type: report, visibility: official, owner_user_id: admin, description: 查看WMS交付单量、TMS关联量和状态分布, permission_tags: [wms_analyst], output_schema: { chartType: mixed_report, metric_codes: [wms_delivery_count, wms_tms_linked_count, wms_status_delivery_count] } }
+  - { skill_id: wms_outbound_analysis, namespace: wms, name: WMS出库物流分析, skill_type: report, visibility: official, owner_user_id: admin, description: 分析出货单、出库单和客户覆盖, permission_tags: [wms_analyst], output_schema: { chartType: bar, metric_codes: [wms_shipment_count, wms_outbound_count, wms_customer_count] } }
+  - { skill_id: wms_material_analysis, namespace: wms, name: WMS物料交付分析, skill_type: metric, visibility: official, owner_user_id: admin, description: 按物料和订单分析WMS交付覆盖, permission_tags: [wms_analyst], output_schema: { chartType: bar, metric_codes: [wms_material_count] } }
+  - { skill_id: wms_warehouse_analysis, namespace: wms, name: WMS仓库分析, skill_type: metric, visibility: official, owner_user_id: admin, description: 按仓库组织分析仓储资源覆盖, permission_tags: [wms_analyst], output_schema: { chartType: bar, metric_codes: [wms_warehouse_count] } }

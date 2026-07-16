@@ -1,0 +1,101 @@
+pack_id: tms
+namespace: tms
+name: TMS 运输管理系统领域包
+version: "1.0.0"
+official: true
+description: >
+  TMS（Transport Management System）领域包，覆盖发货申请、发货制单、
+  发货执行、签收确认、承运商履约、询比价分析等核心 TMS 业务场景。
+author: sq-bi-team
+min_engine_version: "0.1.0"
+tags: ["tms", "logistics", "supply-chain", "oracle"]
+
+standard_fields:
+  - field_id: deliver_no
+    business_name: 发货单号
+    data_type: text
+    description: 运输执行单关联的发货单号，主键级标准字段
+    required: true
+
+  - field_id: apply_no
+    business_name: 发货申请编号
+    data_type: text
+    description: 发货申请的唯一编号
+    required: true
+
+  - field_id: carrier_name
+    business_name: 承运商名称
+    data_type: text
+    description: 承运商的企业名称
+
+  - field_id: plan_time
+    business_name: 计划到货时间
+    data_type: datetime
+    description: 计划到货时间
+
+  - field_id: actual_time
+    business_name: 实际到货时间
+    data_type: datetime
+    description: 实际到货时间
+
+  - field_id: car_status
+    business_name: 车辆状态
+    data_type: enum
+    description: 车辆运输/卸货状态编码
+    enum_values: ["0","1","2","3","4","5","6","7","8","9","10","11","12"]
+
+  - field_id: transport_type
+    business_name: 运输方式
+    data_type: enum
+    description: 运输方式编码
+    enum_values: ["1","2","3"]
+
+  - field_id: enquiry_no
+    business_name: 询价单号
+    data_type: text
+    description: RFQ 询价单唯一编号
+
+  - field_id: project_id
+    business_name: 项目ID
+    data_type: text
+    description: 运输业务关联的项目唯一标识
+
+  - field_id: project_name
+    business_name: 项目名称
+    data_type: text
+    description: 项目主数据中的完整名称
+
+  - field_id: deliver_date
+    business_name: 发货日期
+    data_type: datetime
+    description: 发货执行层的业务日期
+
+  - field_id: delivery_factory
+    business_name: 发货工厂
+    data_type: text
+    description: 项目对应的发货工厂
+
+  - field_id: contract_no
+    business_name: 合同号
+    data_type: text
+    description: 项目合同编号
+
+  - field_id: supplier_name
+    business_name: 供应商名称
+    data_type: text
+    description: 询比价场景中的报价供应商名称
+
+assets:
+  - asset_type: semantic
+    path: semantic/tms_semantic.yaml
+    description: TMS Oracle 数据源语义目录（数据源、表、字段、指标、同义词）
+
+  - asset_type: skill
+    path: skills/tms_askdata/SKILL.md
+    description: TMS 问数 Skill，自然语言 → 受控只读 Oracle SQL
+
+  - asset_type: field_mappings
+    path: field_mappings/oracle_tms.yaml
+    description: oracle_tms 数据源的默认标准字段映射
+
+dependencies: []

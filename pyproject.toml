@@ -1,0 +1,15 @@
+[project]
+name = "sq-bi-product"
+version = "0.1.0"
+description = "SQ-BI product monorepo."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+  "packages/contracts",
+  "services/semantic",
+  "services/runtime",
+  "services/export",
+]

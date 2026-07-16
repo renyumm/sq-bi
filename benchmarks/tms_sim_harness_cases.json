@@ -1,0 +1,55 @@
+{
+  "name": "TMS simulation conversational benchmark",
+  "description": "Requires the postgres_tms_sim data source and activated TMS simulation domain pack.",
+  "defaults": {
+    "data_source_id": "postgres_tms_sim",
+    "max_elapsed_ms": 45000
+  },
+  "cases": [
+    {
+      "id": "metric_recent_seven_days",
+      "turns": [
+        {
+          "question": "@仿真单均运输成本 最近七天的",
+          "expect": {
+            "status": "completed",
+            "asset_contains": "仿真单均运输成本",
+            "lineage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "conversation_dimension_drilldown",
+      "turns": [
+        {
+          "question": "@仿真单均运输成本 最近七天的",
+          "expect": {"status": "completed"}
+        },
+        {
+          "question": "按承运商看，哪个最高？",
+          "expect": {
+            "status": "completed",
+            "asset_contains": "仿真单均运输成本",
+            "field_contains": "CARRIER_NAME",
+            "lineage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "multi_view_analysis",
+      "turns": [
+        {
+          "question": "@仿真单均运输成本 对比各承运商，并展示最近七天公司平均成本趋势",
+          "expect": {
+            "status": "completed",
+            "asset_contains": "仿真单均运输成本",
+            "lineage": true
+          }
+        }
+      ]
+    }
+  ]
+}
+

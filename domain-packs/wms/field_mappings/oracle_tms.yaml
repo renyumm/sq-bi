@@ -1,0 +1,17 @@
+pack_id: wms
+data_source_id: oracle_tms
+version: "1.0.0"
+mappings:
+  - { standard_field_id: delivery_id, physical_table: WMS_DELIVERY_INFO, physical_column: ID, source: official_default, confidence: 1.0 }
+  - { standard_field_id: wms_id, physical_table: WMS_DELIVERY_INFO, physical_column: WMS_ID, source: official_default, confidence: 1.0 }
+  - { standard_field_id: tms_deliver_no, physical_table: WMS_DELIVERY_INFO, physical_column: TMS_DELIVER_NO, source: official_default, confidence: 1.0 }
+  - { standard_field_id: wms_status, physical_table: WMS_DELIVERY_INFO, physical_column: WMS_STATUS, source: official_default, confidence: 1.0 }
+  - { standard_field_id: delivery_date, physical_table: WMS_DELIVERY_INFO, physical_column: DELIVERY_DATE, source: official_default, confidence: 1.0 }
+  - { standard_field_id: material_code, physical_table: HR_DELIVER_APPLY_WMS, physical_column: WL_CODE, source: official_default, confidence: 1.0 }
+  - { standard_field_id: order_no, physical_table: WMS_DELIVERY_INFO, physical_column: ORDER_NUM, source: official_default, confidence: 1.0 }
+  - { standard_field_id: warehouse_name, physical_table: ORG_WMS, physical_column: WMS_NAME, source: official_default, confidence: 1.0 }
+  - { standard_field_id: warehouse_master_id, physical_table: ORG_WMS, physical_column: WMS_ID, source: official_default, confidence: 1.0 }
+  - { standard_field_id: shipment_no, physical_table: WMS_LOGISTICS_INFO, physical_column: SHIP_NUM, source: official_default, confidence: 1.0 }
+  - { standard_field_id: outbound_no, physical_table: WMS_LOGISTICS_INFO, physical_column: OUT_NUM, source: official_default, confidence: 1.0 }
+  - { standard_field_id: customer_name, physical_table: WMS_LOGISTICS_INFO, physical_column: CST_NAME, source: official_default, confidence: 1.0 }
+  - { standard_field_id: contract_no, physical_table: WMS_DELIVERY_INFO, physical_column: CONTRACT_NO, source: official_default, confidence: 1.0 }

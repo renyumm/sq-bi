@@ -1,0 +1,1506 @@
+data_sources:
+  - data_source_id: "oracle_tms"
+    name: "TMS Oracle"
+    database_type: "oracle"
+    connection_alias: "TMS_ORACLE"
+    is_read_only: true
+    owner: "admin"
+    description: "Primary Oracle database for TMS data"
+    tags: ["production", "tms"]
+
+tables:
+  - table_id: "hr_project_base"
+    data_source_id: "oracle_tms"
+    physical_name: "HR_PROJECT_BASE"
+    business_name: "项目基础信息表"
+    description: "项目维度的基础信息，包括项目编码、项目名称等。"
+    owner: "admin"
+    tags: ["dimension", "project"]
+
+  - table_id: "hr_deliver_apply"
+    data_source_id: "oracle_tms"
+    physical_name: "HR_DELIVER_APPLY"
+    business_name: "发货申请表"
+    description: "记录发货申请信息"
+    owner: "admin"
+    tags: ["fact", "shipping"]
+
+  - table_id: "hr_deliver_form"
+    data_source_id: "oracle_tms"
+    physical_name: "HR_DELIVER_FORM"
+    business_name: "发货制单表"
+    description: "记录实际发货制单信息"
+    owner: "admin"
+    tags: ["fact", "shipping"]
+
+  - table_id: "hr_deliver_carry"
+    data_source_id: "oracle_tms"
+    physical_name: "HR_DELIVER_CARRY"
+    business_name: "发货执行表"
+    description: "记录执行层面的运输车辆状态、计划和实际到货时间"
+    owner: "admin"
+    tags: ["fact", "execution"]
+
+  - table_id: "hr_recepit_confirm"
+    data_source_id: "oracle_tms"
+    physical_name: "HR_RECEPIT_CONFIRM"
+    business_name: "签收确认表"
+    description: "记录签收确认状态以及处理时间"
+    owner: "admin"
+    tags: ["fact", "receipt"]
+
+  - table_id: "hr_dict"
+    data_source_id: "oracle_tms"
+    physical_name: "HR_DICT"
+    business_name: "TMS 字典表"
+    description: "运输方式、状态等业务字典映射。"
+    owner: "admin"
+    tags: ["dimension", "dictionary"]
+
+  - table_id: "hr_supplier_info"
+    data_source_id: "oracle_tms"
+    physical_name: "HR_SUPPLIER_INFO"
+    business_name: "TMS 供应商信息表"
+    description: "记录项目相关供应商信息，用于供应商维度分析。"
+    owner: "admin"
+    tags: ["dimension", "supplier"]
+
+  - table_id: "hr_transport_detail"
+    data_source_id: "oracle_tms"
+    physical_name: "HR_TRANSPORT_DETAIL"
+    business_name: "TMS 运输明细表"
+    description: "记录项目关联的运输线路、运输方式和运输明细。"
+    owner: "admin"
+    tags: ["fact", "transport"]
+
+  - table_id: "rfq_project_base"
+    data_source_id: "oracle_tms"
+    physical_name: "RFQ_PROJECT_BASE"
+    business_name: "RFQ 项目基础表"
+    description: "记录询比价项目基础信息。"
+    owner: "admin"
+    tags: ["dimension", "rfq", "project"]
+
+  - table_id: "rfq_enquiry_info"
+    data_source_id: "oracle_tms"
+    physical_name: "RFQ_ENQUIRY_INFO"
+    business_name: "询价主表"
+    description: "记录 TMS 询比价询价单主信息。"
+    owner: "admin"
+    tags: ["fact", "rfq"]
+
+  - table_id: "rfq_supplier_info"
+    data_source_id: "oracle_tms"
+    physical_name: "RFQ_SUPPLIER_INFO"
+    business_name: "供应商报价表"
+    description: "记录供应商针对询价单的报价参与信息。"
+    owner: "admin"
+    tags: ["fact", "rfq"]
+
+  - table_id: "rfq_transport_detail"
+    data_source_id: "oracle_tms"
+    physical_name: "RFQ_TRANSPORT_DETAIL"
+    business_name: "RFQ 运输明细表"
+    description: "记录询比价场景下的运输线路和报价明细。"
+    owner: "admin"
+    tags: ["fact", "rfq", "transport"]
+
+fields:
+  - field_id: "hr_project_base.id"
+    table_id: "hr_project_base"
+    physical_name: "ID"
+    business_name: "项目ID"
+    data_type: "VARCHAR"
+    description: "项目唯一标识"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_project_base.project_name"
+    table_id: "hr_project_base"
+    physical_name: "PROJECT_NAME"
+    business_name: "项目名称"
+    data_type: "VARCHAR"
+    description: "项目的完整名称"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_project_base.contract_no"
+    table_id: "hr_project_base"
+    physical_name: "CONTRACT_NO"
+    business_name: "合同号"
+    data_type: "VARCHAR"
+    description: "项目合同编号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_project_base.delivery_factory"
+    table_id: "hr_project_base"
+    physical_name: "DELIVERY_FACTORY"
+    business_name: "发货工厂"
+    data_type: "VARCHAR"
+    description: "项目对应发货工厂"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_project_base.place_of_delivery"
+    table_id: "hr_project_base"
+    physical_name: "PLACE_OF_DELIVERY"
+    business_name: "交货地点"
+    data_type: "VARCHAR"
+    description: "项目交货地点"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_project_base.receiver"
+    table_id: "hr_project_base"
+    physical_name: "RECEIVER"
+    business_name: "收货人"
+    data_type: "VARCHAR"
+    description: "项目收货人"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_project_base.created_time"
+    table_id: "hr_project_base"
+    physical_name: "CREATED_TIME"
+    business_name: "项目创建时间"
+    data_type: "DATE"
+    description: "项目记录创建时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.apply_no"
+    table_id: "hr_deliver_apply"
+    physical_name: "APPLY_NO"
+    business_name: "申请编号"
+    data_type: "VARCHAR"
+    description: "发货申请的唯一编号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.project_id"
+    table_id: "hr_deliver_apply"
+    physical_name: "PROJECT_ID"
+    business_name: "申请项目ID"
+    data_type: "VARCHAR"
+    description: "发货申请关联项目 ID"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.deliver_date"
+    table_id: "hr_deliver_apply"
+    physical_name: "DELIVER_DATE"
+    business_name: "申请发货日期"
+    data_type: "DATE"
+    description: "发货申请业务日期"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.deliver_no"
+    table_id: "hr_deliver_apply"
+    physical_name: "DELIVER_NO"
+    business_name: "申请发货单号"
+    data_type: "VARCHAR"
+    description: "申请层记录的发货单号，不作为申请量主统计键"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.deliver_place"
+    table_id: "hr_deliver_apply"
+    physical_name: "DELIVER_PLACE"
+    business_name: "发货地"
+    data_type: "VARCHAR"
+    description: "发货申请中的发货地"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.deliver_store"
+    table_id: "hr_deliver_apply"
+    physical_name: "DELIVER_STORE"
+    business_name: "发货仓库"
+    data_type: "VARCHAR"
+    description: "发货申请中的发货仓库"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.destination"
+    table_id: "hr_deliver_apply"
+    physical_name: "DESTINATION"
+    business_name: "目的地"
+    data_type: "VARCHAR"
+    description: "发货目的地"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.power"
+    table_id: "hr_deliver_apply"
+    physical_name: "POWER"
+    business_name: "功率"
+    data_type: "NUMBER"
+    description: "发货申请功率，单位 W"
+    is_dimension: false
+    is_measure: true
+
+  - field_id: "hr_deliver_apply.car_count"
+    table_id: "hr_deliver_apply"
+    physical_name: "CAR_COUNT"
+    business_name: "车数"
+    data_type: "NUMBER"
+    description: "发货申请车数"
+    is_dimension: false
+    is_measure: true
+
+  - field_id: "hr_deliver_apply.status"
+    table_id: "hr_deliver_apply"
+    physical_name: "STATUS"
+    business_name: "申请状态"
+    data_type: "VARCHAR"
+    description: "发货申请状态"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.transport_type"
+    table_id: "hr_deliver_apply"
+    physical_name: "TRANSPORT_TYPE"
+    business_name: "提货方式"
+    data_type: "VARCHAR"
+    description: "运输方式编码，可通过 HR_DICT.TYPE=2 翻译"
+    enum_values:
+      "1": "公路运输"
+      "2": "公铁联运"
+      "3": "其他"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_apply.created_time"
+    table_id: "hr_deliver_apply"
+    physical_name: "CREATED_TIME"
+    business_name: "申请创建时间"
+    data_type: "DATE"
+    description: "发货申请创建时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_form.deliver_no"
+    table_id: "hr_deliver_form"
+    physical_name: "DELIVER_NO"
+    business_name: "发货单号"
+    data_type: "VARCHAR"
+    description: "发货制单号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_form.apply_no"
+    table_id: "hr_deliver_form"
+    physical_name: "APPLY_NO"
+    business_name: "制单申请编号"
+    data_type: "VARCHAR"
+    description: "发货制单关联申请编号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_form.project_id"
+    table_id: "hr_deliver_form"
+    physical_name: "PROJECT_ID"
+    business_name: "制单项目ID"
+    data_type: "VARCHAR"
+    description: "发货制单关联项目 ID"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_form.deliver_date"
+    table_id: "hr_deliver_form"
+    physical_name: "DELIVER_DATE"
+    business_name: "制单发货日期"
+    data_type: "DATE"
+    description: "发货制单业务日期"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_form.carrier_name"
+    table_id: "hr_deliver_form"
+    physical_name: "CARRIER_NAME"
+    business_name: "承运商名称"
+    data_type: "VARCHAR"
+    description: "承运商的企业名称"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_form.transport_type"
+    table_id: "hr_deliver_form"
+    physical_name: "TRANSPORT_TYPE"
+    business_name: "运输方式"
+    data_type: "VARCHAR"
+    description: "发货制单运输方式"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_form.car_type"
+    table_id: "hr_deliver_form"
+    physical_name: "CAR_TYPE"
+    business_name: "车型"
+    data_type: "VARCHAR"
+    description: "运输车型"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_form.transport_distance"
+    table_id: "hr_deliver_form"
+    physical_name: "TRANSPORT_DISTANCE"
+    business_name: "运输距离"
+    data_type: "NUMBER"
+    description: "发货制单运输距离"
+    is_dimension: false
+    is_measure: true
+
+  - field_id: "hr_deliver_form.cost_type"
+    table_id: "hr_deliver_form"
+    physical_name: "COST_TYPE"
+    business_name: "费用类型"
+    data_type: "VARCHAR"
+    description: "运输费用类型"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_form.status"
+    table_id: "hr_deliver_form"
+    physical_name: "STATUS"
+    business_name: "制单状态"
+    data_type: "VARCHAR"
+    description: "发货制单状态"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_form.form_date"
+    table_id: "hr_deliver_form"
+    physical_name: "FORM_DATE"
+    business_name: "制单日期"
+    data_type: "DATE"
+    description: "发货制单日期"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_form.actual_send_out_goods_date"
+    table_id: "hr_deliver_form"
+    physical_name: "ACTUAL_SEND_OUT_GOODS_DATE"
+    business_name: "实际发货时间"
+    data_type: "DATE"
+    description: "实际发货出库时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_form.created_time"
+    table_id: "hr_deliver_form"
+    physical_name: "CREATED_TIME"
+    business_name: "制单创建时间"
+    data_type: "DATE"
+    description: "发货制单创建时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.car_status"
+    table_id: "hr_deliver_carry"
+    physical_name: "CAR_STATUS"
+    business_name: "车辆状态"
+    data_type: "VARCHAR"
+    description: "车辆运输/卸货状态"
+    enum_values:
+      "0": "未到厂"
+      "1": "已到厂"
+      "2": "装货离厂"
+      "3": "运输途中"
+      "4": "已到目的地"
+      "5": "已卸货"
+      "6": "已叫号"
+      "7": "待进厂"
+      "8": "已入厂"
+      "9": "已退车"
+      "10": "装货中"
+      "11": "待离厂"
+      "12": "异常"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.apply_no"
+    table_id: "hr_deliver_carry"
+    physical_name: "APPLY_NO"
+    business_name: "执行申请编号"
+    data_type: "VARCHAR"
+    description: "发货执行关联申请编号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.deliver_no"
+    table_id: "hr_deliver_carry"
+    physical_name: "DELIVER_NO"
+    business_name: "执行发货单号"
+    data_type: "VARCHAR"
+    description: "运输执行单关联的发货单号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.project_id"
+    table_id: "hr_deliver_carry"
+    physical_name: "PROJECT_ID"
+    business_name: "执行项目ID"
+    data_type: "VARCHAR"
+    description: "发货执行关联项目 ID"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.car_number"
+    table_id: "hr_deliver_carry"
+    physical_name: "CAR_NUMBER"
+    business_name: "车牌号"
+    data_type: "VARCHAR"
+    description: "承运车辆车牌号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.driver"
+    table_id: "hr_deliver_carry"
+    physical_name: "DRIVER"
+    business_name: "司机"
+    data_type: "VARCHAR"
+    description: "承运司机姓名"
+    sensitivity_level: "internal"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.car_phone"
+    table_id: "hr_deliver_carry"
+    physical_name: "CAR_PHONE"
+    business_name: "司机联系方式"
+    data_type: "VARCHAR"
+    description: "司机联系电话"
+    sensitivity_level: "restricted"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.predict_time"
+    table_id: "hr_deliver_carry"
+    physical_name: "PREDICT_TIME"
+    business_name: "预计到厂时间"
+    data_type: "DATE"
+    description: "车辆预计到厂时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.deliver_date"
+    table_id: "hr_deliver_carry"
+    physical_name: "DELIVER_DATE"
+    business_name: "执行日期"
+    data_type: "DATE"
+    description: "运输执行日期"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.plan_time"
+    table_id: "hr_deliver_carry"
+    physical_name: "PLAN_TIME"
+    business_name: "计划到货时间"
+    data_type: "DATE"
+    description: "计划到货时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.actual_time"
+    table_id: "hr_deliver_carry"
+    physical_name: "ACTUAL_TIME"
+    business_name: "实际到货时间"
+    data_type: "DATE"
+    description: "实际到货时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.status"
+    table_id: "hr_deliver_carry"
+    physical_name: "STATUS"
+    business_name: "执行链路状态"
+    data_type: "VARCHAR"
+    description: "链路状态，0=申请，1=制单，2=执行"
+    enum_values:
+      "0": "申请"
+      "1": "制单"
+      "2": "执行"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.back_status"
+    table_id: "hr_deliver_carry"
+    physical_name: "BACK_STATUS"
+    business_name: "回传状态"
+    data_type: "VARCHAR"
+    description: "发货执行回传状态"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_deliver_carry.created_time"
+    table_id: "hr_deliver_carry"
+    physical_name: "CREATED_TIME"
+    business_name: "执行创建时间"
+    data_type: "DATE"
+    description: "发货执行记录创建时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_recepit_confirm.deliver_no"
+    table_id: "hr_recepit_confirm"
+    physical_name: "DELIVER_NO"
+    business_name: "签收发货单号"
+    data_type: "VARCHAR"
+    description: "签收确认关联的发货单号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_recepit_confirm.status"
+    table_id: "hr_recepit_confirm"
+    physical_name: "STATUS"
+    business_name: "签收状态"
+    data_type: "VARCHAR"
+    description: "签收确认状态"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_recepit_confirm.type"
+    table_id: "hr_recepit_confirm"
+    physical_name: "TYPE"
+    business_name: "签收类型"
+    data_type: "VARCHAR"
+    description: "签收确认类型"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_recepit_confirm.hr_handle_user"
+    table_id: "hr_recepit_confirm"
+    physical_name: "HR_HANDLE_USER"
+    business_name: "环睿处理人"
+    data_type: "VARCHAR"
+    description: "环睿侧签收处理人"
+    sensitivity_level: "internal"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_recepit_confirm.hr_handle_date"
+    table_id: "hr_recepit_confirm"
+    physical_name: "HR_HANDLE_DATE"
+    business_name: "签收处理时间"
+    data_type: "DATE"
+    description: "签收确认处理时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_recepit_confirm.hs_handle_user"
+    table_id: "hr_recepit_confirm"
+    physical_name: "HS_HANDLE_USER"
+    business_name: "环晟处理人"
+    data_type: "VARCHAR"
+    description: "环晟侧签收处理人"
+    sensitivity_level: "internal"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_recepit_confirm.hs_handle_date"
+    table_id: "hr_recepit_confirm"
+    physical_name: "HS_HANDLE_DATE"
+    business_name: "环晟处理时间"
+    data_type: "DATE"
+    description: "环晟侧签收处理时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_recepit_confirm.created_time"
+    table_id: "hr_recepit_confirm"
+    physical_name: "CREATED_TIME"
+    business_name: "签收创建时间"
+    data_type: "DATE"
+    description: "签收确认记录创建时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "hr_dict.type"
+    table_id: "hr_dict"
+    physical_name: "TYPE"
+    business_name: "字典类型"
+    data_type: "VARCHAR"
+    description: "字典分类类型"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_dict.code"
+    table_id: "hr_dict"
+    physical_name: "CODE"
+    business_name: "字典编码"
+    data_type: "VARCHAR"
+    description: "字典编码"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_dict.describe"
+    table_id: "hr_dict"
+    physical_name: "DESCRIBE"
+    business_name: "字典描述"
+    data_type: "VARCHAR"
+    description: "运输方式或状态描述"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_dict.status"
+    table_id: "hr_dict"
+    physical_name: "STATUS"
+    business_name: "字典启用状态"
+    data_type: "VARCHAR"
+    description: "字典项启用状态"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_dict.value"
+    table_id: "hr_dict"
+    physical_name: "VALUE"
+    business_name: "字典数值"
+    data_type: "VARCHAR"
+    description: "字典扩展数值"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_supplier_info.project_id"
+    table_id: "hr_supplier_info"
+    physical_name: "PROJECT_ID"
+    business_name: "供应商项目ID"
+    data_type: "VARCHAR"
+    description: "供应商信息关联项目 ID"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_supplier_info.supplier_name"
+    table_id: "hr_supplier_info"
+    physical_name: "SUPPLIER_NAME"
+    business_name: "TMS 供应商名称"
+    data_type: "VARCHAR"
+    description: "TMS 项目供应商名称"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_transport_detail.project_id"
+    table_id: "hr_transport_detail"
+    physical_name: "PROJECT_ID"
+    business_name: "运输明细项目ID"
+    data_type: "VARCHAR"
+    description: "运输明细关联项目 ID"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "hr_transport_detail.transport_type"
+    table_id: "hr_transport_detail"
+    physical_name: "TRANSPORT_TYPE"
+    business_name: "运输明细运输方式"
+    data_type: "VARCHAR"
+    description: "运输明细中的运输方式编码"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "rfq_project_base.id"
+    table_id: "rfq_project_base"
+    physical_name: "ID"
+    business_name: "RFQ 项目ID"
+    data_type: "VARCHAR"
+    description: "询比价项目唯一标识"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "rfq_project_base.project_name"
+    table_id: "rfq_project_base"
+    physical_name: "PROJECT_NAME"
+    business_name: "RFQ 项目名称"
+    data_type: "VARCHAR"
+    description: "询比价项目名称"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "rfq_enquiry_info.enquiry_no"
+    table_id: "rfq_enquiry_info"
+    physical_name: "ENQUIRY_NO"
+    business_name: "询价单号"
+    data_type: "VARCHAR"
+    description: "询价单唯一编号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "rfq_enquiry_info.project_id"
+    table_id: "rfq_enquiry_info"
+    physical_name: "PROJECT_ID"
+    business_name: "询价项目ID"
+    data_type: "VARCHAR"
+    description: "询价单关联项目 ID"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "rfq_enquiry_info.created_time"
+    table_id: "rfq_enquiry_info"
+    physical_name: "CREATED_TIME"
+    business_name: "询价创建时间"
+    data_type: "DATE"
+    description: "询价单创建时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "rfq_supplier_info.supplier_name"
+    table_id: "rfq_supplier_info"
+    physical_name: "SUPPLIER_NAME"
+    business_name: "供应商名称"
+    data_type: "VARCHAR"
+    description: "参与报价的供应商名称"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "rfq_supplier_info.created_time"
+    table_id: "rfq_supplier_info"
+    physical_name: "CREATED_TIME"
+    business_name: "报价创建时间"
+    data_type: "DATE"
+    description: "供应商报价记录创建时间"
+    is_dimension: false
+    is_measure: false
+
+  - field_id: "rfq_supplier_info.enquiry_no"
+    table_id: "rfq_supplier_info"
+    physical_name: "ENQUIRY_NO"
+    business_name: "报价询价单号"
+    data_type: "VARCHAR"
+    description: "供应商报价关联询价单号"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "rfq_transport_detail.project_id"
+    table_id: "rfq_transport_detail"
+    physical_name: "PROJECT_ID"
+    business_name: "RFQ 运输明细项目ID"
+    data_type: "VARCHAR"
+    description: "RFQ 运输明细关联项目 ID"
+    is_dimension: true
+    is_measure: false
+
+  - field_id: "rfq_transport_detail.transport_type"
+    table_id: "rfq_transport_detail"
+    physical_name: "TRANSPORT_TYPE"
+    business_name: "RFQ 运输方式"
+    data_type: "VARCHAR"
+    description: "RFQ 运输明细运输方式"
+    is_dimension: true
+    is_measure: false
+
+metrics:
+  - metric_code: "apply_count"
+    name: "发货申请量"
+    definition: "发货申请的总量"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(apply_no)"
+      referenced_standard_fields: ["apply_no"]
+    formula:
+      expression: "select count(distinct a.APPLY_NO) as apply_count from HR_DELIVER_APPLY a"
+      numerator: "APPLY_NO"
+      denominator: null
+      filters: []
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["发货申请", "申请单量"]
+
+  - metric_code: "form_count"
+    name: "发货制单量"
+    definition: "发货制单的总量"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(deliver_no)"
+      referenced_standard_fields: ["deliver_no"]
+      notes: "deliver_no maps to HR_DELIVER_FORM.DELIVER_NO for this metric"
+    formula:
+      expression: "select count(distinct f.DELIVER_NO) as form_count from HR_DELIVER_FORM f"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: []
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["制单量", "发货单量"]
+
+  - metric_code: "execution_count"
+    name: "执行单量"
+    definition: "发货执行表中的执行单总量，按 DELIVER_NO 去重统计。"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(deliver_no)"
+      referenced_standard_fields: ["deliver_no"]
+    formula:
+      expression: "select count(distinct c.DELIVER_NO) as execution_count from HR_DELIVER_CARRY c"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: []
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["执行量", "运输执行量", "执行发货单量"]
+
+  - metric_code: "ontime_rate"
+    name: "准时到货率"
+    definition: "实际到货时间不迟于计划到货时间的执行单比例"
+    visibility: "official"
+    logical_formula:
+      expression: "rate(actual_time <= plan_time)"
+      referenced_standard_fields: ["actual_time", "plan_time"]
+    formula:
+      expression: "select round(100 * count(case when c.ACTUAL_TIME <= c.PLAN_TIME then 1 end) / nullif(count(case when c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end), 0), 2) as ontime_rate from HR_DELIVER_CARRY c where c.PLAN_TIME is not null and c.ACTUAL_TIME is not null"
+      numerator: "count(case when actual_time <= plan_time then 1 end)"
+      denominator: "count(case when plan_time is not null and actual_time is not null then 1 end)"
+      filters: ["plan_time is not null", "actual_time is not null"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["准时率", "到货准时率"]
+
+  - metric_code: "in_transit_count"
+    name: "运输中单量"
+    definition: "当前车辆状态为运输途中的执行单量"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(deliver_no) filter(car_status = '3')"
+      referenced_standard_fields: ["deliver_no", "car_status"]
+    formula:
+      expression: "select count(distinct c.DELIVER_NO) as in_transit_count from HR_DELIVER_CARRY c where c.CAR_STATUS = '3'"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: ["CAR_STATUS = '3'"]
+      time_field: null
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["在途单量", "运输途中单量"]
+
+  - metric_code: "unloaded_count"
+    name: "已卸货单量"
+    definition: "车辆状态为已卸货的执行单量"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(deliver_no) filter(car_status = '5')"
+      referenced_standard_fields: ["deliver_no", "car_status"]
+    formula:
+      expression: "select count(distinct c.DELIVER_NO) as unloaded_count from HR_DELIVER_CARRY c where c.CAR_STATUS = '5'"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: ["CAR_STATUS = '5'"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["卸货单量", "已卸货量"]
+
+  - metric_code: "signed_count"
+    name: "已签收量"
+    definition: "签收确认表中已完成签收的发货单量"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(deliver_no)"
+      referenced_standard_fields: ["deliver_no"]
+      notes: "deliver_no maps to HR_RECEPIT_CONFIRM.DELIVER_NO for this metric"
+    formula:
+      expression: "select count(distinct r.DELIVER_NO) as signed_count from HR_RECEPIT_CONFIRM r"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: []
+      time_field: "HR_HANDLE_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["签收量", "完成量"]
+
+  - metric_code: "unsigned_count"
+    name: "未签收单量"
+    definition: "执行表中存在但尚未进入签收确认的单量"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "anti-join across HR_DELIVER_CARRY and HR_RECEPIT_CONFIRM; DSL does not support multi-table JOINs"
+    formula:
+      expression: "select count(distinct c.DELIVER_NO) as unsigned_count from HR_DELIVER_CARRY c left join HR_RECEPIT_CONFIRM r on r.DELIVER_NO = c.DELIVER_NO where r.DELIVER_NO is null"
+      numerator: "c.DELIVER_NO"
+      denominator: null
+      filters: ["r.DELIVER_NO is null"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["未签收", "签收积压"]
+
+  - metric_code: "carrier_shipment_count"
+    name: "承运商承运量"
+    definition: "按承运商统计的发货制单量"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "deliver_no 与 carrier_name 的默认映射跨执行表和制单表，需使用已审核物理 SQL。"
+    formula:
+      expression: "select f.CARRIER_NAME as carrier_name, count(distinct f.DELIVER_NO) as shipment_count from HR_DELIVER_FORM f where f.CARRIER_NAME is not null group by f.CARRIER_NAME"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: ["CARRIER_NAME is not null"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["承运量", "承运商发货量"]
+
+  - metric_code: "transport_mode_apply_count"
+    name: "运输方式申请量"
+    definition: "按运输方式统计的发货申请量，运输方式通过 HR_DICT.TYPE=2 翻译。"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(apply_no) group_by(transport_type)"
+      referenced_standard_fields: ["apply_no", "transport_type"]
+    formula:
+      expression: "select a.TRANSPORT_TYPE as transport_type, count(distinct a.APPLY_NO) as apply_count from HR_DELIVER_APPLY a where a.TRANSPORT_TYPE is not null group by a.TRANSPORT_TYPE"
+      numerator: "APPLY_NO"
+      denominator: null
+      filters: ["TRANSPORT_TYPE is not null"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["运输方式分布", "运输方式占比", "提货方式申请量"]
+
+  - metric_code: "carrier_ontime_rate"
+    name: "承运商准时到货率"
+    definition: "按承运商分组计算的准时到货率"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "requires JOIN between HR_DELIVER_CARRY and HR_DELIVER_FORM on DELIVER_NO; DSL does not support multi-table JOINs"
+    formula:
+      expression: "select f.CARRIER_NAME as carrier_name, round(100 * count(case when c.ACTUAL_TIME <= c.PLAN_TIME then 1 end) / nullif(count(case when c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end), 0), 2) as ontime_rate from HR_DELIVER_CARRY c join HR_DELIVER_FORM f on f.DELIVER_NO = c.DELIVER_NO where f.CARRIER_NAME is not null and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null group by f.CARRIER_NAME"
+      numerator: "count(case when actual_time <= plan_time then 1 end)"
+      denominator: "count(case when plan_time is not null and actual_time is not null then 1 end)"
+      filters: ["CARRIER_NAME is not null", "plan_time is not null", "actual_time is not null"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["承运商准时率", "承运商时效"]
+
+  - metric_code: "project_shipment_count"
+    name: "项目发货量"
+    definition: "按项目统计的发货制单量"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "requires JOIN between HR_DELIVER_FORM and HR_PROJECT_BASE; DSL does not support multi-table JOINs"
+    formula:
+      expression: "select p.PROJECT_NAME as project_name, count(distinct f.DELIVER_NO) as shipment_count from HR_DELIVER_FORM f join HR_PROJECT_BASE p on p.ID = f.PROJECT_ID group by p.PROJECT_NAME"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: []
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["项目发货", "项目制单量"]
+
+  - metric_code: "delayed_count"
+    name: "延期单量"
+    definition: "实际到货时间晚于计划到货时间的执行单量"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(deliver_no) filter(actual_time > plan_time)"
+      referenced_standard_fields: ["deliver_no", "actual_time", "plan_time"]
+    formula:
+      expression: "select count(distinct c.DELIVER_NO) as delayed_count from HR_DELIVER_CARRY c where c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: ["ACTUAL_TIME > PLAN_TIME", "PLAN_TIME is not null", "ACTUAL_TIME is not null"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["延期", "延期到货"]
+
+  - metric_code: "enquiry_count"
+    name: "询价单量"
+    definition: "询价主表中的询价单数量"
+    visibility: "official"
+    logical_formula:
+      expression: "count_distinct(enquiry_no)"
+      referenced_standard_fields: ["enquiry_no"]
+    formula:
+      expression: "select count(distinct e.ENQUIRY_NO) as enquiry_count from RFQ_ENQUIRY_INFO e"
+      numerator: "ENQUIRY_NO"
+      denominator: null
+      filters: []
+      time_field: "CREATED_TIME"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["询价量", "询价单数"]
+
+  - metric_code: "supplier_quotation_count"
+    name: "供应商报价次数"
+    definition: "供应商报价记录数量"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "uses count(*) without a field reference; DSL requires an explicit standard field"
+    formula:
+      expression: "select count(*) as supplier_quotation_count from RFQ_SUPPLIER_INFO q where q.SUPPLIER_NAME is not null"
+      numerator: null
+      denominator: null
+      filters: ["SUPPLIER_NAME is not null"]
+      time_field: "CREATED_TIME"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["报价次数", "供应商报价量"]
+
+  - metric_code: "delayed_rate"
+    name: "延期率"
+    definition: "实际到货时间晚于计划到货时间的执行单占具备计划和实际到货时间执行单的比例。"
+    visibility: "official"
+    logical_formula:
+      expression: "rate(actual_time > plan_time)"
+      referenced_standard_fields: ["actual_time", "plan_time"]
+    formula:
+      expression: "select round(100 * count(case when c.ACTUAL_TIME > c.PLAN_TIME then 1 end) / nullif(count(case when c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end), 0), 2) as delayed_rate from HR_DELIVER_CARRY c where c.PLAN_TIME is not null and c.ACTUAL_TIME is not null"
+      numerator: "count(case when ACTUAL_TIME > PLAN_TIME then 1 end)"
+      denominator: "count(case when PLAN_TIME is not null and ACTUAL_TIME is not null then 1 end)"
+      filters: ["PLAN_TIME is not null", "ACTUAL_TIME is not null"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["延期占比", "超时率", "到货延期率"]
+
+  - metric_code: "avg_delay_hours"
+    name: "平均延期小时"
+    definition: "实际到货晚于计划到货的执行单平均延期时长，单位小时。"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "requires Oracle date arithmetic (ACTUAL_TIME - PLAN_TIME) * 24; DSL does not support date diff expressions"
+    formula:
+      expression: "select round(avg(case when c.ACTUAL_TIME > c.PLAN_TIME then (c.ACTUAL_TIME - c.PLAN_TIME) * 24 end), 2) as avg_delay_hours from HR_DELIVER_CARRY c where c.PLAN_TIME is not null and c.ACTUAL_TIME is not null and c.ACTUAL_TIME > c.PLAN_TIME"
+      numerator: "sum(case when ACTUAL_TIME > PLAN_TIME then (cast(ACTUAL_TIME as date) - cast(PLAN_TIME as date)) * 24 end)"
+      denominator: "count(case when ACTUAL_TIME > PLAN_TIME then 1 end)"
+      filters: ["PLAN_TIME is not null", "ACTUAL_TIME is not null", "ACTUAL_TIME > PLAN_TIME"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["平均超时时长", "延期小时", "到货超时小时"]
+
+  - metric_code: "signed_rate"
+    name: "签收完成率"
+    definition: "已签收发货单占执行发货单的比例，用于衡量执行到签收闭环完成情况。"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "requires LEFT JOIN between HR_DELIVER_CARRY and HR_RECEPIT_CONFIRM; DSL does not support multi-table JOINs"
+    formula:
+      expression: "select round(100 * count(distinct r.DELIVER_NO) / nullif(count(distinct c.DELIVER_NO), 0), 2) as signed_rate from HR_DELIVER_CARRY c left join HR_RECEPIT_CONFIRM r on r.DELIVER_NO = c.DELIVER_NO"
+      numerator: "count(distinct r.DELIVER_NO)"
+      denominator: "count(distinct c.DELIVER_NO)"
+      filters: []
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["签收率", "闭环完成率", "签收闭环率"]
+
+  - metric_code: "unsigned_rate"
+    name: "未签收率"
+    definition: "未进入签收确认的执行发货单占执行发货单比例，用于识别签收积压风险。"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "requires LEFT JOIN between HR_DELIVER_CARRY and HR_RECEPIT_CONFIRM with anti-join pattern; DSL does not support multi-table JOINs"
+    formula:
+      expression: "select round(100 * count(distinct case when r.DELIVER_NO is null then c.DELIVER_NO end) / nullif(count(distinct c.DELIVER_NO), 0), 2) as unsigned_rate from HR_DELIVER_CARRY c left join HR_RECEPIT_CONFIRM r on r.DELIVER_NO = c.DELIVER_NO"
+      numerator: "count(case when r.DELIVER_NO is null then c.DELIVER_NO end)"
+      denominator: "count(distinct c.DELIVER_NO)"
+      filters: []
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["未签收占比", "签收积压率"]
+
+  - metric_code: "carrier_delay_count"
+    name: "承运商延期单量"
+    definition: "按承运商统计的延期到货执行单量，用于承运商履约异常定位。"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "requires JOIN between HR_DELIVER_CARRY and HR_DELIVER_FORM; DSL does not support multi-table JOINs"
+    formula:
+      expression: "select f.CARRIER_NAME as carrier_name, count(distinct c.DELIVER_NO) as carrier_delay_count from HR_DELIVER_CARRY c join HR_DELIVER_FORM f on f.DELIVER_NO = c.DELIVER_NO where f.CARRIER_NAME is not null and c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null group by f.CARRIER_NAME"
+      numerator: "DELIVER_NO"
+      denominator: null
+      filters: ["CARRIER_NAME is not null", "ACTUAL_TIME > PLAN_TIME", "PLAN_TIME is not null", "ACTUAL_TIME is not null"]
+      time_field: "DELIVER_DATE"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["承运商延期", "承运商超时单量"]
+
+  - metric_code: "rfq_response_rate"
+    name: "RFQ 报价响应率"
+    definition: "有供应商报价记录的 RFQ 询价占询价单量的比例，用于衡量询比价响应充分性。"
+    visibility: "official"
+    escape_hatch: true
+    escape_hatch_reason: "requires LEFT JOIN between RFQ_ENQUIRY_INFO and RFQ_SUPPLIER_INFO; DSL does not support multi-table JOINs"
+    formula:
+      expression: "select round(100 * count(distinct q.ENQUIRY_NO) / nullif(count(distinct e.ENQUIRY_NO), 0), 2) as rfq_response_rate from RFQ_ENQUIRY_INFO e left join RFQ_SUPPLIER_INFO q on q.ENQUIRY_NO = e.ENQUIRY_NO"
+      numerator: "count(distinct q.ENQUIRY_NO)"
+      denominator: "count(distinct e.ENQUIRY_NO)"
+      filters: []
+      time_field: "CREATED_TIME"
+    data_source_id: "oracle_tms"
+    owner: "admin"
+    version: "1.0.0"
+    synonyms: ["报价响应率", "询价响应率", "RFQ 响应率"]
+
+reports:
+  - report_skill_id: "tms_fulfillment_daily"
+    namespace: "tms"
+    name: "TMS 履约日报"
+    owner_user_id: "admin"
+    visibility: "official"
+    description: "每日跟踪发货执行、运输中、签收和延期情况。"
+    time_grain: "day"
+    widgets:
+      - widget_id: "fulfillment_kpis"
+        title: "履约核心指标"
+        metric_codes: ["execution_count", "in_transit_count", "signed_count", "delayed_count"]
+        dimensions: ["deliver_date"]
+        chart_type: "line"
+
+  - report_skill_id: "tms_carrier_monthly"
+    namespace: "tms"
+    name: "承运商履约月报"
+    owner_user_id: "admin"
+    visibility: "official"
+    description: "按承运商对比承运量、准时率和延期单量。"
+    time_grain: "month"
+    widgets:
+      - widget_id: "carrier_ranking"
+        title: "承运商履约排名"
+        metric_codes: ["carrier_shipment_count", "carrier_ontime_rate", "carrier_delay_count"]
+        dimensions: ["carrier_name"]
+        chart_type: "bar"
+
+  - report_skill_id: "tms_rfq_summary"
+    namespace: "tms"
+    name: "TMS 询比价分析报表"
+    owner_user_id: "admin"
+    visibility: "official"
+    description: "展示询价量、供应商报价量和 RFQ 响应率。"
+    widgets:
+      - widget_id: "rfq_overview"
+        title: "询比价概览"
+        metric_codes: ["enquiry_count", "supplier_quotation_count", "rfq_response_rate"]
+        dimensions: ["supplier_name"]
+        chart_type: "bar"
+
+skills:
+  - skill_id: "tms_system_askdata"
+    namespace: "tms"
+    name: "TMS 系统问数"
+    skill_type: "report"
+    visibility: "official"
+    description: "面向 TMS_ORACLE Oracle 库的受控自然语言问数 Skill，覆盖项目、发货申请、发货制单、发货执行、签收、承运商履约和 RFQ 分析。"
+    permission_tags: ["tms_analyst"]
+    synonyms: ["TMS 问数", "智慧问数", "TMS 自然语言查询", "受控 SQL 问数"]
+    parameters:
+      - name: "question"
+        data_type: "String"
+        required: true
+        description: "用户自然语言问题"
+        allowed_values: []
+      - name: "time_range"
+        data_type: "TimeRange"
+        required: false
+        description: "默认按问题中的时间表达理解；未说明时优先补最近业务周期"
+        allowed_values: []
+    output_schema:
+      allowed_tables:
+        - "HR_PROJECT_BASE"
+        - "HR_DELIVER_APPLY"
+        - "HR_DELIVER_FORM"
+        - "HR_DELIVER_CARRY"
+        - "HR_RECEPIT_CONFIRM"
+        - "HR_SUPPLIER_INFO"
+        - "HR_TRANSPORT_DETAIL"
+        - "HR_DICT"
+        - "RFQ_PROJECT_BASE"
+        - "RFQ_ENQUIRY_INFO"
+        - "RFQ_SUPPLIER_INFO"
+        - "RFQ_TRANSPORT_DETAIL"
+      forbidden_patterns: ["*_COPY", "TEMP_*", "*_2025*", "*_A"]
+      join_paths:
+        - "HR_PROJECT_BASE.ID = HR_DELIVER_APPLY.PROJECT_ID"
+        - "HR_PROJECT_BASE.ID = HR_DELIVER_CARRY.PROJECT_ID"
+        - "HR_DELIVER_APPLY.APPLY_NO = HR_DELIVER_FORM.APPLY_NO"
+        - "HR_DELIVER_FORM.DELIVER_NO = HR_DELIVER_CARRY.DELIVER_NO"
+        - "HR_DELIVER_CARRY.DELIVER_NO = HR_RECEPIT_CONFIRM.DELIVER_NO"
+      metrics:
+        - "发货申请量"
+        - "发货制单量"
+        - "执行单量"
+        - "已签收量"
+        - "运输中单量"
+        - "准时到货率"
+        - "延期单量"
+        - "签收完成率"
+        - "RFQ 报价响应率"
+      analysisMethod: "由大模型根据用户问题选择指标、维度和时间条件，生成只读 SELECT，并返回中文展示列、图表建议和血缘信息。"
+      outputFormat: "mixed_report"
+      steps:
+        - "识别用户问题中的指标、时间、厂区、项目、承运商、运输方式或 RFQ 维度。"
+        - "从语义目录选择最小必要表和指标口径，缺参时软提示并继续尝试执行。"
+        - "生成只读 SELECT，列别名和展示元数据由大模型直接输出中文。"
+        - "执行查询并返回表格、图表建议、口径解释和下一问建议。"
+      sql: "select (select count(distinct a.APPLY_NO) from HR_DELIVER_APPLY a) as apply_count, (select count(distinct f.DELIVER_NO) from HR_DELIVER_FORM f) as form_count, (select count(distinct c.DELIVER_NO) from HR_DELIVER_CARRY c) as execution_count, (select count(distinct r.DELIVER_NO) from HR_RECEPIT_CONFIRM r) as signed_count, (select count(distinct c.DELIVER_NO) from HR_DELIVER_CARRY c where c.CAR_STATUS = '3') as in_transit_count, (select count(distinct c.DELIVER_NO) from HR_DELIVER_CARRY c left join HR_RECEPIT_CONFIRM r on r.DELIVER_NO = c.DELIVER_NO where r.DELIVER_NO is null) as unsigned_count, (select round(100 * count(case when c.ACTUAL_TIME <= c.PLAN_TIME then 1 end) / nullif(count(case when c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end), 0), 2) from HR_DELIVER_CARRY c where c.PLAN_TIME is not null and c.ACTUAL_TIME is not null) as ontime_rate, (select count(distinct c.DELIVER_NO) from HR_DELIVER_CARRY c where c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null) as delayed_count, (select round(100 * count(case when c.ACTUAL_TIME > c.PLAN_TIME then 1 end) / nullif(count(case when c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end), 0), 2) from HR_DELIVER_CARRY c where c.PLAN_TIME is not null and c.ACTUAL_TIME is not null) as delayed_rate, (select round(100 * count(distinct r.DELIVER_NO) / nullif(count(distinct c.DELIVER_NO), 0), 2) from HR_DELIVER_CARRY c left join HR_RECEPIT_CONFIRM r on r.DELIVER_NO = c.DELIVER_NO) as signed_rate, (select round(100 * count(distinct case when r.DELIVER_NO is null then c.DELIVER_NO end) / nullif(count(distinct c.DELIVER_NO), 0), 2) from HR_DELIVER_CARRY c left join HR_RECEPIT_CONFIRM r on r.DELIVER_NO = c.DELIVER_NO) as unsigned_rate from DUAL"
+      time_fields:
+        HR_DELIVER_APPLY: "DELIVER_DATE"
+        HR_DELIVER_FORM: "DELIVER_DATE"
+        HR_DELIVER_CARRY: "DELIVER_DATE"
+        HR_RECEPIT_CONFIRM: "HR_HANDLE_DATE"
+      chartType: "mixed_report"
+
+  - skill_id: "tms_carrier_performance"
+    namespace: "tms"
+    name: "承运商履约分析"
+    skill_type: "metric"
+    visibility: "official"
+    description: "分析承运商的发货量和到货准时率，进行履约考核"
+    permission_tags: ["tms_analyst"]
+    synonyms: ["承运商分析", "承运商表现"]
+    parameters:
+      - name: "time_range"
+        data_type: "TimeRange"
+        required: true
+        description: "分析时间范围"
+        allowed_values: []
+      - name: "factory"
+        data_type: "Factory"
+        required: false
+        description: "厂区或大区过滤条件"
+        allowed_values: []
+      - name: "carrier"
+        data_type: "String"
+        required: false
+        description: "指定承运商；为空时分析全部承运商"
+        allowed_values: []
+    output_schema:
+      metrics: ["承运商承运量", "承运商准时到货率", "承运商延期单量", "平均延期小时"]
+      dimensions: ["承运商", "厂区", "时间范围"]
+      default_time_range: "本月"
+      analysisMethod: "按承运商聚合承运量、准时率、延期单量和平均延期小时，结合样本量过滤识别高风险承运商与稳定承运商。"
+      outputFormat: "mixed_report"
+      steps:
+        - "读取时间范围和厂区条件，缺失时使用对话上下文并在回复里提示假设。"
+        - "按承运商统计承运量、准时到货率、延期单量和平均延期小时。"
+        - "按承运量设置最低样本阈值，避免小样本承运商误判。"
+        - "输出 Top/Bottom 承运商排行、异常原因线索和替换/约谈建议。"
+      sql: "select f.CARRIER_NAME as carrier_name, count(distinct c.DELIVER_NO) as shipment_count, round(100 * count(case when c.ACTUAL_TIME <= c.PLAN_TIME then 1 end) / nullif(count(case when c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end), 0), 2) as ontime_rate, count(case when c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end) as delay_count, round(avg(case when c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then (c.ACTUAL_TIME - c.PLAN_TIME) * 24 end), 2) as avg_delay_hours from HR_DELIVER_CARRY c join HR_DELIVER_FORM f on f.DELIVER_NO = c.DELIVER_NO where f.CARRIER_NAME is not null group by f.CARRIER_NAME order by delay_count desc, shipment_count desc fetch first 20 rows only"
+      time_fields:
+        HR_DELIVER_CARRY: "DELIVER_DATE"
+      chartType: "bar"
+
+  - skill_id: "tms_transport_mode_distribution"
+    namespace: "tms"
+    name: "运输方式分布分析"
+    skill_type: "metric"
+    visibility: "official"
+    description: "按运输方式统计发货申请量分布和占比，运输方式优先通过 HR_DICT.TYPE=2 翻译。"
+    permission_tags: ["tms_analyst"]
+    synonyms: ["运输方式分布", "运输方式占比", "提货方式分布"]
+    parameters:
+      - name: "time_range"
+        data_type: "TimeRange"
+        required: true
+        description: "统计时间范围"
+        allowed_values: []
+      - name: "factory"
+        data_type: "Factory"
+        required: false
+        description: "厂区或大区过滤条件"
+        allowed_values: []
+    output_schema:
+      metrics: ["运输方式申请量"]
+      dimensions: ["运输方式"]
+      default_time_range: "本月"
+      analysisMethod: "按运输方式统计申请量和占比，结合字典翻译识别运输方式结构变化。"
+      outputFormat: "chart"
+      steps:
+        - "解析时间范围和厂区条件，读取发货申请表运输方式字段。"
+        - "通过 HR_DICT 将运输方式编码翻译为业务名称。"
+        - "计算各运输方式申请量、占比和环比变化。"
+        - "输出结构占比图和异常运输方式提醒。"
+      sql: "select coalesce(d.DESCRIBE, a.TRANSPORT_TYPE) as transport_type_name, count(distinct a.APPLY_NO) as apply_count from HR_DELIVER_APPLY a left join HR_DICT d on d.TYPE = '2' and d.CODE = a.TRANSPORT_TYPE where a.TRANSPORT_TYPE is not null group by coalesce(d.DESCRIBE, a.TRANSPORT_TYPE) order by apply_count desc"
+      time_fields:
+        HR_DELIVER_APPLY: "DELIVER_DATE"
+      chartType: "bar"
+
+  - skill_id: "tms_logistics_risk_scan"
+    namespace: "tms"
+    name: "物流风险扫描"
+    skill_type: "report"
+    visibility: "official"
+    description: "扫描准时到货率、未签收积压、在途单量和延期项目，定位本月物流风险。"
+    permission_tags: ["tms_analyst"]
+    synonyms: ["物流风险", "运输风险", "风险扫描"]
+    parameters:
+      - name: "time_range"
+        data_type: "TimeRange"
+        required: true
+        description: "风险扫描时间范围"
+        allowed_values: []
+      - name: "factory"
+        data_type: "Factory"
+        required: false
+        description: "厂区或大区过滤条件"
+        allowed_values: []
+      - name: "risk_level"
+        data_type: "String"
+        required: false
+        description: "关注的风险等级，如红色、黄色、全部"
+        allowed_values: ["全部", "红色", "黄色"]
+    output_schema:
+      metrics: ["准时到货率", "延期率", "未签收单量", "未签收率", "运输中单量", "项目发货量"]
+      dimensions: ["厂区", "项目", "承运商", "时间范围"]
+      sections: ["时效水位", "签收积压", "在途积压", "延期项目", "行动建议"]
+      analysisMethod: "先计算时效、签收和在途三类风险水位，再按项目/承运商定位风险集中来源，最后输出管理动作。"
+      outputFormat: "mixed_report"
+      steps:
+        - "读取时间范围、厂区和项目上下文，生成风险扫描运行条件。"
+        - "计算准时到货率、延期率、未签收单量、未签收率和在途单量。"
+        - "按项目和承运商拆解延期、未签收和在途积压来源。"
+        - "按影响量和异常程度生成红黄绿风险等级。"
+        - "输出风险表、风险原因线索和下一步处理建议。"
+      sql: "select c.PROJECT_ID as project_id, p.PROJECT_NAME as project_name, p.DELIVERY_FACTORY as delivery_factory, count(distinct c.DELIVER_NO) as execution_count, round(100 * count(case when c.ACTUAL_TIME <= c.PLAN_TIME then 1 end) / nullif(count(case when c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end), 0), 2) as ontime_rate, count(case when c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end) as delayed_count, count(case when c.CAR_STATUS = '3' then 1 end) as in_transit_count, count(distinct case when r.DELIVER_NO is null then c.DELIVER_NO end) as unsigned_count from HR_DELIVER_CARRY c left join HR_PROJECT_BASE p on p.ID = c.PROJECT_ID left join HR_RECEPIT_CONFIRM r on r.DELIVER_NO = c.DELIVER_NO group by c.PROJECT_ID, p.PROJECT_NAME, p.DELIVERY_FACTORY order by delayed_count desc, unsigned_count desc fetch first 20 rows only"
+      time_fields:
+        HR_DELIVER_CARRY: "DELIVER_DATE"
+      chartType: "mixed_report"
+
+  - skill_id: "tms_fulfillment_exception"
+    namespace: "tms"
+    name: "履约异常诊断"
+    skill_type: "report"
+    visibility: "official"
+    description: "从运输执行到签收完成诊断履约异常，输出项目级异常线索。"
+    permission_tags: ["tms_analyst"]
+    synonyms: ["履约异常", "签收异常", "异常诊断"]
+    parameters:
+      - name: "time_range"
+        data_type: "TimeRange"
+        required: true
+        description: "诊断时间范围"
+        allowed_values: []
+      - name: "factory"
+        data_type: "Factory"
+        required: false
+        description: "厂区或大区过滤条件"
+        allowed_values: []
+      - name: "project"
+        data_type: "String"
+        required: false
+        description: "指定项目；为空时分析全部项目"
+        allowed_values: []
+    output_schema:
+      metrics: ["执行单量", "签收完成率", "未签收单量", "未签收率", "延期单量", "平均延期小时"]
+      dimensions: ["项目", "厂区", "承运商", "执行状态"]
+      sections: ["签收闭环", "在途执行", "时效表现", "异常项目", "责任线索"]
+      analysisMethod: "从执行单到签收确认做闭环诊断，识别未签收、延期、在途积压和状态回传异常。"
+      outputFormat: "mixed_report"
+      steps:
+        - "关联执行单和签收确认单，形成履约闭环视图。"
+        - "计算签收完成率、未签收单量、延期单量和平均延期小时。"
+        - "按项目、承运商和状态拆解异常集中点。"
+        - "输出异常明细快照、处理优先级和责任协同建议。"
+      sql: "select c.PROJECT_ID as project_id, p.PROJECT_NAME as project_name, p.DELIVERY_FACTORY as delivery_factory, f.CARRIER_NAME as carrier_name, count(distinct c.DELIVER_NO) as execution_count, count(distinct r.DELIVER_NO) as signed_count, count(distinct case when r.DELIVER_NO is null then c.DELIVER_NO end) as unsigned_count, round(100 * count(distinct r.DELIVER_NO) / nullif(count(distinct c.DELIVER_NO), 0), 2) as signed_rate, count(case when c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end) as delayed_count from HR_DELIVER_CARRY c left join HR_DELIVER_FORM f on f.DELIVER_NO = c.DELIVER_NO left join HR_PROJECT_BASE p on p.ID = c.PROJECT_ID left join HR_RECEPIT_CONFIRM r on r.DELIVER_NO = c.DELIVER_NO group by c.PROJECT_ID, p.PROJECT_NAME, p.DELIVERY_FACTORY, f.CARRIER_NAME order by unsigned_count desc, delayed_count desc fetch first 20 rows only"
+      time_fields:
+        HR_DELIVER_CARRY: "DELIVER_DATE"
+      chartType: "table"
+
+  - skill_id: "tms_project_delay_analysis"
+    namespace: "tms"
+    name: "项目延期分析"
+    skill_type: "metric"
+    visibility: "official"
+    description: "按项目统计最近 7 天延期到货单量，识别延期最集中的项目。"
+    permission_tags: ["tms_analyst"]
+    synonyms: ["项目延期", "延期项目", "延期排行"]
+    parameters:
+      - name: "time_range"
+        data_type: "TimeRange"
+        required: true
+        description: "延期分析时间范围"
+        allowed_values: []
+      - name: "factory"
+        data_type: "Factory"
+        required: false
+        description: "厂区或大区过滤条件"
+        allowed_values: []
+      - name: "project"
+        data_type: "String"
+        required: false
+        description: "指定项目；为空时输出延期项目排行"
+        allowed_values: []
+    output_schema:
+      metrics: ["项目发货量", "延期单量", "延期率", "平均延期小时"]
+      dimensions: ["项目", "厂区", "大区", "时间范围"]
+      columns: ["项目", "发货量", "延期单量", "延期率", "平均延期小时"]
+      analysisMethod: "按项目聚合发货量和延期表现，结合项目样本量识别延期集中项目和高延期率项目。"
+      outputFormat: "table"
+      steps:
+        - "解析时间范围、厂区或大区条件，锁定项目维度。"
+        - "按项目统计发货量、延期单量、延期率和平均延期小时。"
+        - "区分高影响项目和高比例异常项目，避免只看单一排序。"
+        - "输出项目排行、异常项目清单和追责/协同建议。"
+      sql: "select c.PROJECT_ID as project_id, p.PROJECT_NAME as project_name, p.DELIVERY_FACTORY as delivery_factory, count(distinct c.DELIVER_NO) as shipment_count, count(case when c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end) as delayed_count, round(100 * count(case when c.ACTUAL_TIME > c.PLAN_TIME then 1 end) / nullif(count(case when c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then 1 end), 0), 2) as delayed_rate, round(avg(case when c.ACTUAL_TIME > c.PLAN_TIME and c.PLAN_TIME is not null and c.ACTUAL_TIME is not null then (c.ACTUAL_TIME - c.PLAN_TIME) * 24 end), 2) as avg_delay_hours from HR_DELIVER_CARRY c left join HR_PROJECT_BASE p on p.ID = c.PROJECT_ID group by c.PROJECT_ID, p.PROJECT_NAME, p.DELIVERY_FACTORY order by delayed_count desc, delayed_rate desc fetch first 20 rows only"
+      time_fields:
+        HR_DELIVER_CARRY: "DELIVER_DATE"
+      chartType: "bar"
+
+  - skill_id: "tms_rfq_analysis"
+    namespace: "tms"
+    name: "RFQ 询比价分析"
+    skill_type: "report"
+    visibility: "official"
+    description: "分析 RFQ 询价单量和供应商报价次数，支持本月询价规模、RFQ 项目对比、运输方式对比和供应商报价排行；当前 RFQ 数据目录没有区域/大区物理字段。"
+    permission_tags: ["tms_analyst"]
+    synonyms: ["询比价分析", "询价分析", "供应商报价分析", "RFQ 分析"]
+    parameters:
+      - name: "time_range"
+        data_type: "TimeRange"
+        required: true
+        description: "RFQ 分析时间范围"
+        allowed_values: []
+      - name: "project"
+        data_type: "String"
+        required: false
+        description: "RFQ 项目过滤条件"
+        allowed_values: []
+      - name: "supplier"
+        data_type: "String"
+        required: false
+        description: "供应商过滤条件"
+        allowed_values: []
+    output_schema:
+      metrics: ["询价单量", "供应商报价次数", "RFQ 报价响应率"]
+      dimensions: ["供应商", "RFQ 项目", "运输方式"]
+      default_time_range: "本月"
+      analysisMethod: "按 RFQ 项目、运输方式和供应商统计询价、报价和响应率，定位报价不足和供应商参与度低的问题；若用户要求按区域/大区对比，当前目录无 AREA/REGION 字段，需用 RFQ 项目维度代理并说明。"
+      outputFormat: "mixed_report"
+      steps:
+        - "读取 RFQ 询价、项目、运输明细和供应商报价数据，解析时间和项目条件。"
+        - "计算询价单量、供应商报价次数和 RFQ 报价响应率。"
+        - "区域/大区请求不得使用 AREA/REGION 伪字段；当前只能按 RFQ 项目或运输方式代理对比。"
+        - "按供应商识别高响应、低响应和未响应对象。"
+        - "输出供应商报价排行、响应不足项目和采购协同建议。"
+      sql: "select coalesce(q.SUPPLIER_NAME, '未报价') as supplier_name, count(distinct e.ENQUIRY_NO) as enquiry_count, count(q.ENQUIRY_NO) as quotation_count, round(100 * count(distinct q.ENQUIRY_NO) / nullif(count(distinct e.ENQUIRY_NO), 0), 2) as response_rate from RFQ_ENQUIRY_INFO e left join RFQ_SUPPLIER_INFO q on q.ENQUIRY_NO = e.ENQUIRY_NO group by coalesce(q.SUPPLIER_NAME, '未报价') order by quotation_count desc, enquiry_count desc fetch first 20 rows only"
+      time_fields:
+        RFQ_ENQUIRY_INFO: "CREATED_TIME"
+      chartType: "bar"

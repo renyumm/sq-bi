@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+.worktrees
+.local
+.pytest_cache
+**/__pycache__
+**/.pytest_cache
+**/*.pyc
+apps/web/node_modules
+apps/web/dist
+demo
+docs
+benchmarks
+

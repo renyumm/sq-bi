@@ -1,0 +1,107 @@
+# Default field mappings for TMS pack × oracle_tms data source
+# Generated as part of standard-field-layer migration (Phase 3)
+# Each entry maps a standard_field_id → physical table + column in oracle_tms.
+# source: "official_default" means these are verified deterministic matches.
+
+pack_id: tms
+data_source_id: oracle_tms
+version: "1.0.0"
+
+mappings:
+  - standard_field_id: deliver_no
+    physical_table: HR_DELIVER_CARRY
+    physical_column: DELIVER_NO
+    source: official_default
+    confidence: 1.0
+    notes: 执行层发货单号，准时率/延期等执行指标的主键
+
+  - standard_field_id: apply_no
+    physical_table: HR_DELIVER_APPLY
+    physical_column: APPLY_NO
+    source: official_default
+    confidence: 1.0
+    notes: 发货申请编号，申请量统计主键
+
+  - standard_field_id: carrier_name
+    physical_table: HR_DELIVER_FORM
+    physical_column: CARRIER_NAME
+    source: official_default
+    confidence: 1.0
+    notes: 制单层承运商名称，按承运商聚合的维度字段
+
+  - standard_field_id: plan_time
+    physical_table: HR_DELIVER_CARRY
+    physical_column: PLAN_TIME
+    source: official_default
+    confidence: 1.0
+    notes: 执行层计划到货时间，准时率计算基准
+
+  - standard_field_id: actual_time
+    physical_table: HR_DELIVER_CARRY
+    physical_column: ACTUAL_TIME
+    source: official_default
+    confidence: 1.0
+    notes: 执行层实际到货时间，准时率/延期计算基准
+
+  - standard_field_id: car_status
+    physical_table: HR_DELIVER_CARRY
+    physical_column: CAR_STATUS
+    source: official_default
+    confidence: 1.0
+    notes: 车辆状态码，'3'=运输途中，'5'=已卸货
+
+  - standard_field_id: transport_type
+    physical_table: HR_DELIVER_APPLY
+    physical_column: TRANSPORT_TYPE
+    source: official_default
+    confidence: 1.0
+    notes: 运输方式编码，可通过 HR_DICT.TYPE=2 翻译
+
+  - standard_field_id: enquiry_no
+    physical_table: RFQ_ENQUIRY_INFO
+    physical_column: ENQUIRY_NO
+    source: official_default
+    confidence: 1.0
+    notes: RFQ 询价单唯一编号，询价量统计主键
+
+  - standard_field_id: project_id
+    physical_table: HR_DELIVER_CARRY
+    physical_column: PROJECT_ID
+    source: official_default
+    confidence: 1.0
+    notes: 发货执行层关联的项目 ID
+
+  - standard_field_id: project_name
+    physical_table: HR_PROJECT_BASE
+    physical_column: PROJECT_NAME
+    source: official_default
+    confidence: 1.0
+    notes: 项目主数据名称
+
+  - standard_field_id: deliver_date
+    physical_table: HR_DELIVER_CARRY
+    physical_column: DELIVER_DATE
+    source: official_default
+    confidence: 1.0
+    notes: 发货执行业务日期
+
+  - standard_field_id: delivery_factory
+    physical_table: HR_PROJECT_BASE
+    physical_column: DELIVERY_FACTORY
+    source: official_default
+    confidence: 1.0
+    notes: 项目发货工厂
+
+  - standard_field_id: contract_no
+    physical_table: HR_PROJECT_BASE
+    physical_column: CONTRACT_NO
+    source: official_default
+    confidence: 1.0
+    notes: 项目合同号
+
+  - standard_field_id: supplier_name
+    physical_table: RFQ_SUPPLIER_INFO
+    physical_column: SUPPLIER_NAME
+    source: official_default
+    confidence: 1.0
+    notes: RFQ 供应商报价名称

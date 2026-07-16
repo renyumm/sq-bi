@@ -1,0 +1,34 @@
+{
+  "pack_id": "tms",
+  "version": "1.0.0",
+  "description": "TMS 包挂载冒烟自测集（D7）—— 结构化可断言，不复用 test_cases.md",
+  "assertions": [
+    {
+      "standard_field": "deliver_no",
+      "checks": [
+        {"type": "compiled", "metric": "count_distinct(deliver_no)", "expect_rows_gte": 0},
+        {"type": "compiled", "metric": "count(deliver_no)", "expect_rows_gte": 0}
+      ]
+    },
+    {
+      "standard_field": "carrier_name",
+      "checks": [
+        {"type": "compiled", "metric": "count_distinct(carrier_name)", "expect_rows_gte": 0}
+      ]
+    },
+    {
+      "standard_field": "ontime_rate",
+      "checks": [
+        {"type": "compiled", "metric": "rate(actual_time <= plan_time)", "expect_rows_gte": 0},
+        {"type": "value_range", "metric": "rate(actual_time <= plan_time)", "min": 0, "max": 100}
+      ]
+    },
+    {
+      "standard_field": "car_status",
+      "checks": [
+        {"type": "compiled", "metric": "count_distinct(car_status)", "expect_rows_gte": 0},
+        {"type": "enum_coverage", "field": "car_status", "expected_enums": ["signed", "in_transit", "delayed", "completed"], "min_coverage_pct": 50}
+      ]
+    }
+  ]
+}
