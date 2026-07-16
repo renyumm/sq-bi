@@ -2220,6 +2220,9 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
     def test_asset_draft(request: AssetDraftTestRequest) -> Any:
         """Test the current draft through the closed controlled-plan pipeline."""
         try:
+            # Guardrails and execution must run against the draft's bound data
+            # source, not the legacy default service.
+            scoped_service = _scoped_service_for_data_source(request.data_source_id or "")
             candidate_context = {
                 "asset_type": request.asset_type,
                 "name": request.name,
@@ -2232,10 +2235,10 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
             if request.asset_type == "metric" and request.logical_sql:
                 validation = validate_sql(
                     request.logical_sql,
-                    allowed_schemas=service.allowed_schemas,
-                    schema_catalog=service.schema_catalog,
+                    allowed_schemas=scoped_service.allowed_schemas,
+                    schema_catalog=scoped_service.schema_catalog,
                 )
-                raw_data = service.db_executor.execute(validation.sql, max_rows=200) if request.execute and service.db_executor else {"columns": [], "rows": []}
+                raw_data = scoped_service.db_executor.execute(validation.sql, max_rows=200) if request.execute and scoped_service.db_executor else {"columns": [], "rows": []}
                 payload = {
                     "intent": request.name,
                     "metrics": [request.name],
@@ -2258,7 +2261,7 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
                     f"验证当前{request.asset_type}草案「{request.name}」并直接返回查询结果。"
                     f"未明确时间范围时采用{request.default_time_range}。{request.description}"
                 )
-                payload = service.ask_controlled(
+                payload = scoped_service.ask_controlled(
                     question,
                     execute_sql=request.execute,
                     extra_context=(
