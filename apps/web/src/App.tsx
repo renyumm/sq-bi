@@ -232,8 +232,7 @@ export default function App() {
 
   useEffect(() => {
     if (dataSources.length > 0 && !activeDataSourceId) {
-      const defaultDs = dataSources.find(ds => ds.data_source_id === 'oracle_tms') || dataSources[0];
-      setActiveDataSourceId(defaultDs.data_source_id);
+      setActiveDataSourceId(dataSources[0].data_source_id);
     }
   }, [dataSources, activeDataSourceId]);
 
@@ -941,6 +940,13 @@ export default function App() {
         role_ids: result.role_ids,
       });
       setLoginPassword('');
+      // The pre-login bootstrap only sees the public catalog; admin-gated
+      // sources become visible once the session header is attached.
+      const sourcesList = await api.getDataSources().catch(() => []);
+      if (sourcesList.length > 0) {
+        setDataSources(sourcesList);
+        setActiveDataSourceId(sourcesList[0].data_source_id);
+      }
       await refreshAllData();
     } catch (error) {
       setLoginError(getErrorMessage(error, '用户名或密码不正确。'));
