@@ -1101,6 +1101,42 @@ class SQLiteProductRepository(FileBackedSemanticRepository):
         payload = self._get_product_asset_payload(asset_ref, AssetType.REPORT)
         return ReportRecord(**payload) if payload is not None else None
 
+    def upsert_pack_assets(
+        self,
+        *,
+        owner_user_id: str,
+        metrics: list[MetricDefinition] | None = None,
+        reports: list[ReportRecord] | None = None,
+    ) -> None:
+        """Project pack product assets into the repository.
+
+        Callers must pre-populate each asset's ``asset_ref`` with its pack
+        identity (source_type/source_id); the ref is preserved as-is so
+        re-projection stays idempotent.
+        """
+        now = _now()
+        with self._connect() as conn:
+            for metric in metrics or []:
+                if metric.asset_ref is None:
+                    raise ValueError("Pack metric projection requires a pack asset_ref.")
+                self._upsert_metric(conn, metric, owner_user_id=owner_user_id, now=now)
+            for report in reports or []:
+                if report.asset_ref is None:
+                    raise ValueError("Pack report projection requires a pack asset_ref.")
+                self._upsert_report(conn, report, owner_user_id=owner_user_id, now=now)
+
+    def remove_pack_assets(self, *, source_type: str, source_id: str) -> None:
+        """Remove all projected assets belonging to one pack source."""
+        with self._connect() as conn:
+            conn.execute(
+                "delete from product_metrics where source_type=? and source_id=?",
+                (source_type, source_id),
+            )
+            conn.execute(
+                "delete from product_reports where source_type=? and source_id=?",
+                (source_type, source_id),
+            )
+
     def create_report(self, report: ReportRecord, user_id: str) -> ReportRecord:
         payload = report.model_copy(update={"visibility": "private", "owner": report.owner or user_id})
         payload = self._report_with_asset_ref(payload, user_id, force_personal=True)

@@ -40,3 +40,36 @@ def test_valid_plan_compiles_with_escaped_literal_and_bound_limit() -> None:
     assert "STATUS = 'O''HARE'" in sql
     assert "SUM(AMOUNT) AS TOTAL" in sql
     assert sql.endswith("FETCH FIRST 25 ROWS ONLY")
+
+
+def test_filter_key_synonym_column_is_normalized_to_field() -> None:
+    plan = parse_controlled_plan(
+        '{"entity":"ORDERS","fields":["ID"],'
+        '"filters":[{"column":"STATUS","operator":"eq","value":"OPEN"}]}'
+    )
+    sql = compile_controlled_plan(plan, CATALOG)
+    assert "STATUS = 'OPEN'" in sql
+
+
+def test_relative_date_filter_value_compiles_to_date_expression() -> None:
+    for value in (
+        "CURRENT_DATE - INTERVAL 30 DAY",
+        "CURRENT_DATE - INTERVAL '30 days'",
+        "current_date - 30",
+        "SYSDATE - 30 DAYS",
+    ):
+        plan = parse_controlled_plan(
+            '{"entity":"ORDERS","fields":["ID"],'
+            f'"filters":[{{"field":"STATUS","operator":"gte","value":"{value}"}}]}}'
+        )
+        sql = compile_controlled_plan(plan, CATALOG)
+        assert "STATUS >= CURRENT_DATE - INTERVAL '30' DAY" in sql, (value, sql)
+
+
+def test_plain_string_filter_values_stay_quoted_literals() -> None:
+    plan = parse_controlled_plan(
+        '{"entity":"ORDERS","fields":["ID"],'
+        '"filters":[{"field":"STATUS","operator":"eq","value":"CURRENT_DATE_REPORT"}]}'
+    )
+    sql = compile_controlled_plan(plan, CATALOG)
+    assert "STATUS = 'CURRENT_DATE_REPORT'" in sql

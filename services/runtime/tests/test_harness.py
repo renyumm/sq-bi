@@ -313,3 +313,21 @@ def test_context_rewrite_can_preserve_the_same_previous_asset() -> None:
         "/仿真承运商履约分析 最近七天",
         "@仿真单均运输成本",
     ) == "仿真承运商履约分析 最近七天"
+
+
+def test_long_running_report_tool_gets_extended_budget() -> None:
+    registry = ControlledToolRegistry()
+    registry.register(
+        HarnessToolName.EXECUTE_REPORT,
+        lambda request, args: (sleep(0.2), HarnessObservation(ok=True, summary="报表已生成", data={"ok": True}))[1],
+    )
+    # per_tool_timeout 50ms and max_elapsed 100ms would both fail a 200ms tool;
+    # report generation is a long-running artifact tool and gets its own budget.
+    result = HarnessService(SequencePlanner([
+        _call(HarnessToolName.EXECUTE_REPORT),
+        _finish(),
+    ]), registry).run(
+        _request(budget=HarnessBudgetLimits(per_tool_timeout_ms=50, max_elapsed_ms=100))
+    )
+    assert result.status == HarnessStatus.COMPLETED
+    assert result.trace[0].observation is not None and result.trace[0].observation.ok

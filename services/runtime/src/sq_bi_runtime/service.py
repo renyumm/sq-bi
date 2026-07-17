@@ -18,8 +18,12 @@ Return exactly one JSON object and never return SQL. Allowed keys are:
 entity, fields, aggregates, filters, group_by, order_by, joins, limit.
 Use only identifiers present in the supplied schema catalog. Aggregates use
 function=count|count_distinct|sum|avg|min|max and an optional field/alias.
-Filters use operator=eq|ne|gt|gte|lt|lte|in. Joins reference only declared
-relationship_id values. The limit must be between 1 and 200."""
+Filters use keys field/operator/value with operator=eq|ne|gt|gte|lt|lte|in.
+For relative time windows put an expression like "CURRENT_DATE - 30 DAYS"
+in the filter value; never embed date arithmetic anywhere else. Never apply
+sum/avg to a boolean field — filter on it (eq true/false) and use count
+instead. Joins reference only declared relationship_id values. The limit
+must be between 1 and 200."""
 
 
 class LLMProtocol(Protocol):

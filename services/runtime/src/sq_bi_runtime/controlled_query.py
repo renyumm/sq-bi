@@ -13,6 +13,24 @@ class ControlledPlanError(ValueError):
 
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
+# Models regularly emit "column" where the contract says "field"; accept the
+# synonym instead of failing an otherwise valid plan.
+_FIELD_KEY_ALIASES = ("column", "field_id", "column_name")
+
+
+def _normalize_plan_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    for key in ("filters", "aggregates", "order_by"):
+        items = payload.get(key)
+        if not isinstance(items, list):
+            continue
+        for item in items:
+            if isinstance(item, dict) and "field" not in item:
+                for alias in _FIELD_KEY_ALIASES:
+                    if alias in item:
+                        item["field"] = item.pop(alias)
+                        break
+    return payload
+
 
 def parse_controlled_plan(raw: str) -> ControlledQueryPlan:
     try:
@@ -24,7 +42,7 @@ def parse_controlled_plan(raw: str) -> ControlledQueryPlan:
     if any(str(key).lower() in {"sql", "query", "expression"} for key in payload):
         raise ControlledPlanError("raw SQL fields are forbidden in controlled query plans")
     try:
-        return ControlledQueryPlan.model_validate(payload)
+        return ControlledQueryPlan.model_validate(_normalize_plan_payload(payload))
     except Exception as exc:  # noqa: BLE001
         raise ControlledPlanError(str(exc)) from exc
 
@@ -84,7 +102,10 @@ def compile_controlled_plan(
         else:
             if isinstance(item.value, list):
                 raise ControlledPlanError(f"{item.operator} filter requires a scalar")
-            value_sql = _literal(item.value)
+            relative_date = (
+                _relative_date_sql(item.value) if isinstance(item.value, str) else None
+            )
+            value_sql = relative_date if relative_date is not None else _literal(item.value)
         where_parts.append(f"{column} {op} {value_sql}")
 
     group_by = [_resolve_identifier(field, known_columns, "group field") for field in plan.group_by]
@@ -110,6 +131,35 @@ def _resolve_identifier(value: str, allowed: Any, label: str) -> str:
     if resolved is None:
         raise ControlledPlanError(f"unknown {label}: {value}")
     return resolved
+
+
+# Plans may only carry literal filter values, but models keep expressing
+# relative time windows as pseudo-SQL strings ("CURRENT_DATE - INTERVAL 30
+# DAY"), which would otherwise be quoted into a nonsense literal. Recognise a
+# tightly whitelisted shape and re-render it from validated parts — the output
+# is built exclusively from the fixed base keyword, a checked integer, and a
+# normalised unit, never from the raw input.
+_RELATIVE_DATE = re.compile(
+    r"(?i)^(CURRENT_DATE|CURRENT_TIMESTAMP|SYSDATE|NOW|TODAY)"
+    r"(?:\s*([+-])\s*(?:INTERVAL\s+)?(\d{1,4})\s*(DAYS?|MONTHS?|YEARS?)?)?$"
+)
+
+
+def _relative_date_sql(value: str) -> str | None:
+    candidate = re.sub(r"\s+", " ", re.sub(r"['\"()]", " ", value)).strip()
+    match = _RELATIVE_DATE.fullmatch(candidate)
+    if match is None:
+        return None
+    base_raw, sign, amount, unit = match.groups()
+    base = (
+        "CURRENT_TIMESTAMP"
+        if base_raw.upper() in {"CURRENT_TIMESTAMP", "NOW"}
+        else "CURRENT_DATE"
+    )
+    if sign is None:
+        return base
+    unit_normalized = (unit or "DAY").upper().rstrip("S")
+    return f"{base} {sign} INTERVAL '{int(amount)}' {unit_normalized}"
 
 
 def _literal(value: str | int | float | bool) -> str:

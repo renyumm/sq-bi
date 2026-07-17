@@ -28,6 +28,14 @@ from sq_bi_contracts.harness import (
 )
 
 
+# Artifact-generation tools run a full report pipeline (bound data queries
+# plus a long-form LLM render), which structurally cannot fit the interactive
+# per-tool budget. They get their own timeout ceiling, and their runtime is
+# credited back so it does not consume the conversational deadline either.
+_LONG_RUNNING_TOOLS = frozenset({HarnessToolName.EXECUTE_REPORT})
+_LONG_RUNNING_TOOL_TIMEOUT_MS = 240_000
+
+
 @runtime_checkable
 class HarnessPlanner(Protocol):
     def plan(
@@ -393,6 +401,7 @@ class HarnessService:
         trace: list[HarnessTraceStep] = []
         calls: set[str] = set()
         cost = 0
+        long_tool_credit_ms = 0
         confirmation_token = request.continuation.confirmation_token if request.continuation else None
         if confirmation_token:
             operation = self._confirmations.consume_operation(
@@ -447,7 +456,7 @@ class HarnessService:
             elapsed = int((monotonic() - started) * 1000)
             if len(trace) >= request.budget.max_steps:
                 return self._failed(run_id, trace, cost, elapsed, HarnessFailureCode.STEP_LIMIT, "Harness step limit reached.")
-            if elapsed >= request.budget.max_elapsed_ms:
+            if elapsed - long_tool_credit_ms >= request.budget.max_elapsed_ms:
                 return self._failed(run_id, trace, cost, elapsed, HarnessFailureCode.DEADLINE_EXCEEDED, "Harness deadline exceeded.")
             try:
                 command = self._planner.plan(request, observations)
@@ -515,10 +524,13 @@ class HarnessService:
                 )
             calls.add(fingerprint)
             tool_started = monotonic()
+            tool_timeout_ms = request.budget.per_tool_timeout_ms
+            if call.tool in _LONG_RUNNING_TOOLS:
+                tool_timeout_ms = max(tool_timeout_ms, _LONG_RUNNING_TOOL_TIMEOUT_MS)
             executor = ThreadPoolExecutor(max_workers=1)
             future = executor.submit(self._tools.invoke, call, request)
             try:
-                observation = future.result(timeout=request.budget.per_tool_timeout_ms / 1000)
+                observation = future.result(timeout=tool_timeout_ms / 1000)
             except FutureTimeout as exc:
                 # ``concurrent.futures.TimeoutError`` is an alias of the built-in
                 # ``TimeoutError``. A controlled tool may therefore finish by
@@ -547,6 +559,8 @@ class HarnessService:
             else:
                 executor.shutdown(wait=True)
             duration = int((monotonic() - tool_started) * 1000)
+            if call.tool in _LONG_RUNNING_TOOLS:
+                long_tool_credit_ms += duration
             cost += call.cost_units
             trace.append(HarnessTraceStep(
                 index=len(trace) + 1,

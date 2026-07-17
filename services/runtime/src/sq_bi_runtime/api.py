@@ -3,6 +3,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 import json
+import logging
 import os
 import re
 import tempfile
@@ -113,6 +114,7 @@ from .system_routes import register_system_routes
 
 from .skill_loader import load_demo_business_bundle, load_skill_bundle
 
+logger = logging.getLogger("sq_bi_runtime.api")
 
 
 class AskRequest(BaseModel):
@@ -4283,6 +4285,21 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
         updated = _mapping_store.activate_deployment(deployment_id, auth.user_id)
         if updated is None:
             return _error_response(404, ErrorCode.NOT_FOUND, f"Deployment '{deployment_id}' not found.")
+        if enterprise_pack is not None:
+            # Repository-backed surfaces (report generation, metric listings)
+            # must see the pack's assets once it is live on a data source.
+            try:
+                from .pack_projection import project_pack_assets
+
+                projection_repo = get_repository()
+                if isinstance(projection_repo, SQLiteProductRepository):
+                    project_pack_assets(projection_repo, enterprise_pack, updated.data_source_id)
+            except Exception:  # noqa: BLE001 — activation must not fail on projection
+                logger.warning(
+                    "pack_projection.activate_failed",
+                    extra={"pack_id": updated.pack_id, "deployment_id": deployment_id},
+                    exc_info=True,
+                )
         return _response(updated.model_dump(mode="json"))
 
     @app.post("/api/v1/admin/deployments/{deployment_id}/deactivate", response_model=None)
@@ -4296,6 +4313,24 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
         updated = _mapping_store.deactivate_deployment(deployment_id)
         if updated is None:
             return _error_response(404, ErrorCode.NOT_FOUND, f"Deployment '{deployment_id}' not found.")
+        if _ep_store.get(updated.pack_id) is not None:
+            # Withdraw projected assets once the pack has no live deployment left.
+            try:
+                still_active = any(
+                    item.is_active for item in _mapping_store.list_deployments(updated.pack_id)
+                )
+                if not still_active:
+                    from .pack_projection import remove_pack_assets
+
+                    projection_repo = get_repository()
+                    if isinstance(projection_repo, SQLiteProductRepository):
+                        remove_pack_assets(projection_repo, updated.pack_id)
+            except Exception:  # noqa: BLE001 — deactivation must not fail on cleanup
+                logger.warning(
+                    "pack_projection.deactivate_cleanup_failed",
+                    extra={"pack_id": updated.pack_id, "deployment_id": deployment_id},
+                    exc_info=True,
+                )
         return _response(updated.model_dump(mode="json"))
 
     @app.post("/api/v1/ai/conversation/interpret", response_model=None)
