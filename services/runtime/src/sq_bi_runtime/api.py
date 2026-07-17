@@ -147,6 +147,9 @@ class SkillExecuteRequest(BaseModel):
     question: str
     skill: SkillDefinition
     execute: bool = True
+    # Fallback execution scope when the skill definition carries no
+    # data-source bindings (e.g. pack skills resolved through a deployment).
+    data_source_id: str | None = None
 
 
 class AssetDraftTestRequest(BaseModel):
@@ -396,6 +399,9 @@ def _query_result_from_ask(
     metrics = [str(item) for item in payload.get("metrics", [])]
     tables = [str(item) for item in payload.get("tables", [])]
     executed_at = datetime.now(UTC)
+    # Use the execution's actual data source when the payload carries it;
+    # the legacy labels only remain as fallback for unscoped payloads.
+    payload_data_source = str(payload.get("data_source_id") or "")
     return QueryResult(
         query_id=query_id,
         audit_id=audit_id,
@@ -405,7 +411,7 @@ def _query_result_from_ask(
         lineage=Lineage(
             lineage_id="lin_" + uuid4().hex,
             source_system="SQ_BI_LLM_SKILL_RUNTIME",
-            data_source_id="tms_oracle",
+            data_source_id=payload_data_source or "tms_oracle",
             metric_codes=metrics,
             formula_summary=f"llm_skill_sql:{sha256(sql.encode('utf-8')).hexdigest()[:16]}",
             physical_tables=tables,
@@ -427,7 +433,11 @@ def _query_result_from_ask(
                 LineageSkill(skill_id=str(skill_id), skill_name=str(skill_id))
                 for skill_id in payload.get("skill_ids", [])
             ],
-            data_sources=[LineageDataSource(data_source_id="oracle_tms", name="TMS Oracle 固定连接")],
+            data_sources=[
+                LineageDataSource(data_source_id=payload_data_source, name=payload_data_source)
+                if payload_data_source
+                else LineageDataSource(data_source_id="oracle_tms", name="TMS Oracle 固定连接")
+            ],
             executed_at=executed_at,
             data_watermark=executed_at.strftime("%Y-%m-%d %H:%M:%S"),
         ),
@@ -769,9 +779,12 @@ def _scalar_metric_merge_candidate(asset: ReportRuntimeAsset) -> _ScalarMetricMe
     projection = tree.expressions[0].copy()
     if isinstance(projection, exp.Star) or not _has_aggregate(projection):
         return None
-    alias = projection.alias or _safe_sql_alias(asset.asset_id)
-    if not projection.alias:
-        projection = exp.alias_(projection, alias)
+    # Metric SQLs conventionally alias their scalar as "value"; merged
+    # projections must each carry a unique, asset-derived alias or every
+    # metric in the group reads the same output cell.
+    inner = projection.this if isinstance(projection, exp.Alias) else projection
+    alias = _safe_sql_alias(asset.asset_id)
+    projection = exp.alias_(inner.copy(), alias)
     where = tree.args.get("where")
     return _ScalarMetricMergeCandidate(
         asset=asset,
@@ -2115,6 +2128,8 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
                     for binding in request.skill.execution_contract.data_source_bindings
                 )
             binding_ids = list(dict.fromkeys(value for value in binding_ids if value))
+            if not binding_ids and request.data_source_id:
+                binding_ids = [request.data_source_id]
 
             if len(binding_ids) <= 1:
                 scoped_service = (
@@ -2125,6 +2140,8 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
                     execute_sql=request.execute,
                     extra_context=extra_context,
                 )
+                if binding_ids:
+                    payload.setdefault("data_source_id", binding_ids[0])
             else:
                 def execute_skill_source(data_source_id: str) -> tuple[str, dict[str, Any]]:
                     scoped = _scoped_service_for_data_source(data_source_id)
@@ -5328,12 +5345,21 @@ at most 5. An empty list means formal assets are insufficient. Never invent an i
                 question=str(arguments.get("question") or body.question),
                 skill=asset.definition,
                 execute=body.execute,
+                data_source_id=asset.data_source_id,
             ))
             if hasattr(skill_response, "body"):
                 envelope = json.loads(bytes(skill_response.body).decode("utf-8"))
             else:
                 envelope = skill_response
             payload = envelope.get("data") or {}
+            error = envelope.get("error")
+            if error:
+                return _HarnessObservation(
+                    ok=False,
+                    summary=str(error.get("message")) if isinstance(error, dict) else "技能执行失败。",
+                    failure_code="tool_failed",
+                    data=payload,
+                )
             if payload.get("clarification_required"):
                 return _HarnessObservation(
                     ok=False,
@@ -5502,7 +5528,12 @@ at most 5. An empty list means formal assets are insufficient. Never invent an i
         asset = _find_asset(body, str(arguments.get("asset_id") or ""))
         if asset is None:
             return _HarnessObservation(ok=False, summary="报表不在当前可执行范围。", failure_code="permission_denied")
-        report_id = str(getattr(asset.definition, "report_id", ""))
+        # Runtime report assets use the ReportDefinition contract, whose id
+        # field is report_skill_id; repo records use report_id.
+        report_id = str(
+            getattr(asset.definition, "report_skill_id", "")
+            or getattr(asset.definition, "report_id", "")
+        )
         response = generate_report_artifact_with_llm(report_id, ReportArtifactGenerateRequest(
             user_id=body.context.user_id,
             output_type="html",
