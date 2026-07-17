@@ -73,3 +73,37 @@ def test_plain_string_filter_values_stay_quoted_literals() -> None:
     )
     sql = compile_controlled_plan(plan, CATALOG)
     assert "STATUS = 'CURRENT_DATE_REPORT'" in sql
+
+
+COLUMN_TYPES = {"ORDERS": {"ID": "integer", "STATUS": "text", "AMOUNT": "numeric", "IS_PAID": "boolean"}}
+CATALOG_TYPED = {"ORDERS": {"ID", "STATUS", "AMOUNT", "IS_PAID"}}
+
+
+def test_boolean_avg_and_sum_are_wrapped_when_types_known() -> None:
+    plan = parse_controlled_plan(
+        '{"entity":"ORDERS","aggregates":['
+        '{"function":"avg","field":"IS_PAID","alias":"paid_rate"},'
+        '{"function":"sum","field":"IS_PAID","alias":"paid_count"},'
+        '{"function":"avg","field":"AMOUNT","alias":"avg_amount"}]}'
+    )
+    sql = compile_controlled_plan(plan, CATALOG_TYPED, column_types=COLUMN_TYPES)
+    assert "AVG(CASE WHEN IS_PAID THEN 1 ELSE 0 END) AS paid_rate" in sql
+    assert "SUM(CASE WHEN IS_PAID THEN 1 ELSE 0 END) AS paid_count" in sql
+    assert "AVG(AMOUNT) AS avg_amount" in sql
+
+
+def test_boolean_wrap_is_skipped_without_type_information() -> None:
+    plan = parse_controlled_plan(
+        '{"entity":"ORDERS","aggregates":[{"function":"avg","field":"IS_PAID"}]}'
+    )
+    sql = compile_controlled_plan(plan, CATALOG_TYPED, column_types=None)
+    assert "AVG(IS_PAID)" in sql
+
+
+def test_mysql_tinyint1_counts_as_boolean() -> None:
+    types = {"ORDERS": {"IS_PAID": "tinyint(1)"}}
+    plan = parse_controlled_plan(
+        '{"entity":"ORDERS","aggregates":[{"function":"sum","field":"IS_PAID"}]}'
+    )
+    sql = compile_controlled_plan(plan, CATALOG_TYPED, column_types=types)
+    assert "SUM(CASE WHEN IS_PAID THEN 1 ELSE 0 END)" in sql

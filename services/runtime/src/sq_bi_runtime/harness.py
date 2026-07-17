@@ -28,11 +28,16 @@ from sq_bi_contracts.harness import (
 )
 
 
-# Artifact-generation tools run a full report pipeline (bound data queries
-# plus a long-form LLM render), which structurally cannot fit the interactive
-# per-tool budget. They get their own timeout ceiling, and their runtime is
-# credited back so it does not consume the conversational deadline either.
-_LONG_RUNNING_TOOLS = frozenset({HarnessToolName.EXECUTE_REPORT})
+# Deep-analysis tools structurally cannot fit the interactive per-tool budget:
+# report execution runs bound data queries plus a long-form LLM render, and
+# skill execution plans inside a bounded self-repair loop where each repair
+# round is another planner call. Both are explicit asset invocations, so they
+# get their own timeout ceiling and their runtime is credited back instead of
+# consuming the conversational deadline.
+_LONG_RUNNING_TOOLS = frozenset({
+    HarnessToolName.EXECUTE_REPORT,
+    HarnessToolName.EXECUTE_SKILL,
+})
 _LONG_RUNNING_TOOL_TIMEOUT_MS = 240_000
 
 

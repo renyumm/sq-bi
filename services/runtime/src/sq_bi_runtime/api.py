@@ -2525,11 +2525,16 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
             "mysql": "mysql",
             "clickhouse": "clickhouse",
         }.get(str(record.get("database_type") or "oracle").lower(), "oracle")
+        try:
+            column_types = scoped_executor.get_schema_column_types()
+        except Exception:  # noqa: BLE001 — typed catalog is best-effort
+            column_types = None
         return replace(
             service,
             db_executor=scoped_executor,
             allowed_schemas=(str(record.get("username")),) if record.get("username") else (),
             schema_catalog=scoped_executor.get_schema_catalog(),
+            schema_column_types=column_types,
             sql_dialect=dialect,
         )
 

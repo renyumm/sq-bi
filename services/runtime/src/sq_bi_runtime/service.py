@@ -191,6 +191,7 @@ class AskDataService:
     db_executor: DBProtocol | None = None
     allowed_schemas: tuple[str, ...] = ()
     schema_catalog: SchemaCatalog | None = None
+    schema_column_types: dict[str, dict[str, str]] | None = None
     asset_context_provider: Callable[[], str] | None = None
     max_repair_attempts: int = 2
     sql_dialect: str = "oracle"
@@ -318,53 +319,84 @@ class AskDataService:
         extra_context: str = "",
         relationships: dict[str, tuple[str, str, str, str]] | None = None,
     ) -> dict[str, Any]:
-        """Plan exploration through a closed DTO; raw LLM SQL is never executed."""
+        """Plan exploration through a closed DTO; raw LLM SQL is never executed.
+
+        The planner runs inside a bounded self-repair loop: when a candidate
+        plan fails to parse, compile, pass guardrails, or execute, the failed
+        plan and the error are fed back to the planner for a corrected plan.
+        Every candidate still goes through the full compile/guardrail pipeline
+        — repair widens resilience, never the execution surface.
+        """
         schema_context = schema_catalog_to_prompt(self.schema_catalog or {})
-        planning_started = monotonic()
-        raw = self.llm_client.chat(
-            CONTROLLED_QUERY_PLAN_SYSTEM_PROMPT,
-            f"{schema_context}\n\n{extra_context}\n\nUser question: {question}",
-        )
-        plan = parse_controlled_plan(raw)
-        planning_ms = max(0, int((monotonic() - planning_started) * 1000))
-        compile_started = monotonic()
-        sql = compile_controlled_plan(plan, self.schema_catalog or {}, relationships=relationships)
-        compile_ms = max(0, int((monotonic() - compile_started) * 1000))
-        guard_started = monotonic()
-        validation = validate_sql(
-            sql,
-            allowed_schemas=self.allowed_schemas,
-            schema_catalog=self.schema_catalog,
-            dialect=self.sql_dialect,
-        )
-        guard_ms = max(0, int((monotonic() - guard_started) * 1000))
-        result = {
-            "intent": "controlled_exploration",
-            "metrics": [item.alias or item.function for item in plan.aggregates],
-            "dimensions": list(plan.fields),
-            "sql": validation.sql,
-            "explanation": "已通过受控查询计划编译并执行。",
-            "tables": validation.tables,
-            "controlled_plan": plan.model_dump(mode="json"),
-            "execution_timings": [
-                {"stage": "plan_validation", "duration_ms": planning_ms},
-                {"stage": "compilation", "duration_ms": compile_ms},
-                {"stage": "guardrail", "duration_ms": guard_ms},
-            ],
-        }
-        execution_started = monotonic()
-        attached = self._attach_data(result, execute_sql)
-        if execute_sql and self.db_executor is not None:
-            attached["execution_timings"].append(
-                {
-                    "stage": "execution",
-                    "duration_ms": max(
-                        0,
-                        int((monotonic() - execution_started) * 1000),
-                    ),
-                }
+        repair_context = ""
+        last_error: Exception | None = None
+        for attempt in range(self.max_repair_attempts + 1):
+            planning_started = monotonic()
+            raw = self.llm_client.chat(
+                CONTROLLED_QUERY_PLAN_SYSTEM_PROMPT,
+                f"{schema_context}\n\n{extra_context}{repair_context}\n\nUser question: {question}",
             )
-        return attached
+            planning_ms = max(0, int((monotonic() - planning_started) * 1000))
+            try:
+                plan = parse_controlled_plan(raw)
+                compile_started = monotonic()
+                sql = compile_controlled_plan(
+                    plan,
+                    self.schema_catalog or {},
+                    relationships=relationships,
+                    column_types=self.schema_column_types,
+                )
+                compile_ms = max(0, int((monotonic() - compile_started) * 1000))
+                guard_started = monotonic()
+                validation = validate_sql(
+                    sql,
+                    allowed_schemas=self.allowed_schemas,
+                    schema_catalog=self.schema_catalog,
+                    dialect=self.sql_dialect,
+                )
+                guard_ms = max(0, int((monotonic() - guard_started) * 1000))
+                result = {
+                    "intent": "controlled_exploration",
+                    "metrics": [item.alias or item.function for item in plan.aggregates],
+                    "dimensions": list(plan.fields),
+                    "sql": validation.sql,
+                    "explanation": "已通过受控查询计划编译并执行。",
+                    "tables": validation.tables,
+                    "controlled_plan": plan.model_dump(mode="json"),
+                    "repair_attempts": attempt,
+                    "execution_timings": [
+                        {"stage": "plan_validation", "duration_ms": planning_ms},
+                        {"stage": "compilation", "duration_ms": compile_ms},
+                        {"stage": "guardrail", "duration_ms": guard_ms},
+                    ],
+                }
+                execution_started = monotonic()
+                attached = self._attach_data(result, execute_sql)
+                if execute_sql and self.db_executor is not None:
+                    attached["execution_timings"].append(
+                        {
+                            "stage": "execution",
+                            "duration_ms": max(
+                                0,
+                                int((monotonic() - execution_started) * 1000),
+                            ),
+                        }
+                    )
+                return attached
+            except Exception as exc:  # noqa: BLE001 — fed back to the planner, re-raised when exhausted
+                last_error = exc
+                if attempt >= self.max_repair_attempts:
+                    break
+                repair_context = (
+                    "\n\n# Previous plan failed — return a corrected plan\n"
+                    f"Failed plan output: {raw}\n"
+                    f"Failure: {exc}\n"
+                    "Fix the plan JSON so it avoids this error. "
+                    "Remember: only literal filter values, catalog identifiers, "
+                    "and the documented keys are allowed."
+                )
+        assert last_error is not None
+        raise last_error
 
 
 def build_service(

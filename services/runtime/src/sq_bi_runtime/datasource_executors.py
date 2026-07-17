@@ -10,6 +10,7 @@ from .connectors.factory import build_connector
 class ConnectorExecutor:
     def __init__(self, connector: Any) -> None:
         self._connector = connector
+        self._column_types: dict[str, dict[str, str]] | None = None
 
     def execute(self, sql: str, max_rows: int = 200) -> dict[str, Any]:
         rows = self._connector.execute(sql)
@@ -19,6 +20,24 @@ class ConnectorExecutor:
 
     def get_schema_catalog(self) -> dict[str, set[str]]:
         return {table: set(columns) for table, columns in self._connector.get_schema_catalog().items()}
+
+    def get_schema_column_types(self) -> dict[str, dict[str, str]]:
+        """Return {TABLE: {COLUMN: data_type}} from connector introspection.
+
+        Keys are upper-cased for case-insensitive lookups; the result is cached
+        for the executor's lifetime (the registry rebuilds executors whenever
+        connection parameters change).
+        """
+        if self._column_types is None:
+            column_types: dict[str, dict[str, str]] = {}
+            for item in self._connector.describe_schema() or []:
+                table = str(item.get("table") or "").upper()
+                column = str(item.get("column") or "").upper()
+                data_type = str(item.get("data_type") or "").strip().lower()
+                if table and column and data_type:
+                    column_types.setdefault(table, {})[column] = data_type
+            self._column_types = column_types
+        return self._column_types
 
     def close(self) -> None:
         close = getattr(self._connector, "close", None)

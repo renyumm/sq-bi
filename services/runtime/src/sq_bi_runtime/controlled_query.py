@@ -52,6 +52,7 @@ def compile_controlled_plan(
     schema_catalog: dict[str, set[str]],
     *,
     relationships: dict[str, tuple[str, str, str, str]] | None = None,
+    column_types: dict[str, dict[str, str]] | None = None,
 ) -> str:
     table = _resolve_identifier(plan.entity, schema_catalog.keys(), "entity")
     columns = schema_catalog[table]
@@ -65,10 +66,18 @@ def compile_controlled_plan(
                 raise ControlledPlanError(f"{aggregate.function} requires a field")
             column = _resolve_identifier(aggregate.field, columns, "aggregate field")
             function = "COUNT" if aggregate.function == "count_distinct" else aggregate.function.upper()
+            column_expr = column
+            if aggregate.function in {"sum", "avg"} and _is_boolean_column(
+                table, column, column_types
+            ):
+                # Engines like PostgreSQL reject SUM/AVG over booleans; the
+                # business intent (a rate or a count of trues) is preserved by
+                # aggregating the 1/0 projection instead.
+                column_expr = f"CASE WHEN {column} THEN 1 ELSE 0 END"
             expression = (
                 f"COUNT(DISTINCT {column})"
                 if aggregate.function == "count_distinct"
-                else f"{function}({column})"
+                else f"{function}({column_expr})"
             )
         if aggregate.alias:
             if not _IDENTIFIER.fullmatch(aggregate.alias):
@@ -121,6 +130,21 @@ def compile_controlled_plan(
     if order_by:
         sql += " ORDER BY " + ", ".join(order_by)
     return f"{sql} FETCH FIRST {plan.limit} ROWS ONLY"
+
+
+# Boolean column type markers across supported engines (postgres "boolean",
+# clickhouse "bool", mysql's conventional "tinyint(1)").
+def _is_boolean_column(
+    table: str,
+    column: str,
+    column_types: dict[str, dict[str, str]] | None,
+) -> bool:
+    if not column_types:
+        return False
+    table_types = column_types.get(table.upper()) or column_types.get(table) or {}
+    by_upper = {str(name).upper(): str(value) for name, value in table_types.items()}
+    data_type = by_upper.get(column.upper(), "").strip().lower()
+    return "bool" in data_type or data_type == "tinyint(1)"
 
 
 def _resolve_identifier(value: str, allowed: Any, label: str) -> str:
